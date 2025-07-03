@@ -3,14 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jcallejo <jcallejo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yfang <yfang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 11:20:17 by jcallejo          #+#    #+#             */
-/*   Updated: 2025/07/02 11:22:22 by jcallejo         ###   ########.fr       */
+/*   Updated: 2025/07/03 12:22:15 by yfang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server/Server.hpp"
+#include "../inc/Server.hpp"
+#include <csignal>
+
+Server  *g_server = NULL;
+
+void signalHandler(int signal) {
+    if (signal == SIGINT && g_server) {
+        std::cout << "\nShutting down server..." << std::endl;
+        g_server->stop();
+        delete g_server;
+        exit(0);
+    }
+}
 
 bool isValidPort(const std::string& portStr) 
 {
@@ -43,12 +55,17 @@ int main(int argc, char* argv[])
 
     int port = std::atoi(portStr.c_str());
 	
+    std::signal(SIGINT, signalHandler);
+    
     try 
 	{
-        Server server(port, password);
-        server.run(); // This will start listening and processing connections
+        g_server = new Server(port, password);
+        std::cout << "Starting IRC server on port " << port << std::endl;
+        g_server->start();
     } catch (const std::exception& e) {
-        std::cerr << "Server error: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
+        if (g_server)
+            delete g_server;
         return 1;
     }
 
