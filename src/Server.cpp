@@ -57,11 +57,80 @@ void    Server::setupServerSocket(void) {
 }
 
 void    Server::runMainLoop(void) {
+    pollfd  serverPoll;
+    serverPoll.fd = _serverSocket;
+    serverPoll.events = POLLIN;
+    serverPoll.revents = 0;
+    _pollFds.push_back(serverPoll);
+
     while (1) {
+        //cuando hago ctrl c despues del serverstoped sale por poll failed
         if (g_signal == SIGINT) {
             std::cout << "\nShutting down server..." << std::endl;
             stop();
             exit(0);
+        }
+        if (poll(&_pollFds[0], _pollFds.size(), -1) < 0)
+            throw std::runtime_error("Poll failed");
+
+        for (size_t i = 1; i < _pollFds.size(); ++i) {
+            if (_pollFds[i].revents == POLLIN) {
+                if (_pollFds[i].fd == _serverSocket)
+                    newConnection();
+                else
+                    checkUpdate(_users[_pollFds[i].fd]);
+            }
+        }
+    }
+}
+
+void    Server::newConnection(void) {
+    struct sockaddr_in userAddress;
+    socklen_t userLen = sizeof(userAddress);
+
+    int userSocket = accept(_serverSocket, (struct sockaddr*)&userAddress, &userLen);
+    if (userSocket < 0)
+        exit(-1);
+    if (fcntl(userSocket, F_SETFL, O_NONBLOCK) < 0) {
+        close(userSocket);
+        exit(-1);
+    }
+
+    newUser(userSocket, inet_ntoa(userAddress.sin_addr));
+
+    std::cout << "New client connected: " << inet_ntoa(userAddress.sin_addr) 
+              << ":" << ntohs(userAddress.sin_port) << " (fd: " << userSocket << ")" << std::endl;
+}
+
+void    Server::newUser(int userSocket, const std::string &hostname) {
+    User user(userSocket);
+    user.setHostname(hostname);
+    
+    _users[userSocket] = user;
+
+    pollfd userPoll;
+    userPoll.fd = userSocket;
+    userPoll.events = POLLIN;
+    userPoll.revents = 0;
+    _pollFds.push_back(userPoll);
+}
+
+void    Server::checkUpdate(User &user) {
+    char    buffer[1024];
+    memset(buffer, 0, sizeof(buffer));
+
+    ssize_t bytes = recv(user.getFd(), buffer, sizeof(buffer) - 1, 0);
+    if (bytes < 0)
+        exit(-1);
+/*     if (bytes == 0)
+        disconnectUser(user); */
+    if (bytes > 0) {
+        user.getMessage().setInput(user.getMessage().getInput() + buffer);
+        if (user.getMessage().checkCmdEnd())
+        {
+            user.getMessage().parseInput();
+            //Switch y ejecucion comando
+//            user.getMessage().clear();
         }
     }
 }

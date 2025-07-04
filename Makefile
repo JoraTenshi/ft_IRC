@@ -5,7 +5,9 @@ CFLAGS = -std=c++98 -Wall -Wextra -Werror -Iinc
 REMOVE = rm -rf
  
 SRC = src/main.cpp\
-	src/Server.cpp
+	src/Server.cpp\
+	src/User.cpp\
+	src/Message.cpp
 
 OBJS = $(addprefix obj/, $(SRC:.cpp=.o))
 

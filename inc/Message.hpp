@@ -1,8 +1,9 @@
-#pragma once;
+#ifndef MESSAGE_HPP
+# define MESSAGE_HPP
 
-#include <iostream>
-#include <string>
-#include <vector>
+# include <iostream>
+# include <string>
+# include <vector>
 
 class Message 
 {
@@ -27,7 +28,12 @@ class Message
 		std::string getCmd(void) const;
 		std::vector<std::string> getArgs(void) const;
 
+		void	setInput(std::string input);
+
+//		void clear();
 		bool checkCmdEnd(void);
 		void parseInput(void);
 };
 std::ostream& operator<<(std::ostream& os, const Message& parser);
+
+#endif

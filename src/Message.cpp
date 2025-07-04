@@ -26,6 +26,8 @@ std::string Message::getCmd(void) const {return _cmd;}
 
 std::vector<std::string> Message::getArgs(void) const {return _args;}
 
+void	Message::setInput(std::string input) { _input = input; }
+
 bool Message::checkCmdEnd(void) 
 {
     if (_input.find("\r\n") != std::string::npos)
@@ -38,6 +40,8 @@ void Message::parseInput(void)
     if (!checkCmdEnd())
         return ;
     
+
+	//preguntar como coño va el tema del \r\n
     int end = _input.find("\r\n"); 				//Find end of line
     std::string tmp = _input.substr(0, end);	//Get the input line up to the end
     size_t colonPos = tmp.find(':');			//Find the position of the colon, which separates the command and args from the message	
