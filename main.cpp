@@ -1,4 +1,16 @@
-#include "inc/Server.hpp"
+#include "../inc/Server.hpp"
+#include <csignal>
+
+Server  *g_server = NULL;
+
+void signalHandler(int signal) {
+    if (signal == SIGINT && g_server) {
+        std::cout << "\nShutting down server..." << std::endl;
+        g_server->stop();
+        delete g_server;
+        exit(0);
+    }
+}
 
 bool isValidPort(const std::string& portStr) 
 {
@@ -31,12 +43,17 @@ int main(int argc, char* argv[])
 
     int port = std::atoi(portStr.c_str());
 	
+    std::signal(SIGINT, signalHandler);
+    
     try 
 	{
-        Server server(port, password);
-        server.run(); // This will start listening and processing connections
+        g_server = new Server(port, password);
+        std::cout << "Starting IRC server on port " << port << std::endl;
+        g_server->start();
     } catch (const std::exception& e) {
-        std::cerr << "Server error: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
+        if (g_server)
+            delete g_server;
         return 1;
     }
 
