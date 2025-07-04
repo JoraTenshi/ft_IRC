@@ -2,6 +2,20 @@
 
 Message::Message() {}
 
+Message::Message(const Message &src) { *this = src; }
+
+Message &Message::operator=(const Message &src) 
+{
+	if (this != &src) 
+	{
+		_input = src._input;
+		_cmd = src._cmd;
+		_args = src._args;
+		_msg = src._msg;
+	}
+	return *this;
+}
+
 Message::~Message() {}
 
 std::string Message::getInput(void) const {return _input;}

@@ -18,7 +18,9 @@ class Message
 	
 	public:
 		Message();
+		Message(const Message &src);
 		~Message();
+		Message &operator=(const Message &src);
 
 		std::string getInput(void) const;
 		std::string getMsg(void) const;
