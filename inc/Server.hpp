@@ -6,6 +6,11 @@
 # include <netinet/in.h>
 # include <sys/socket.h>
 # include <unistd.h>
+# include <fcntl.h>
+# include <csignal>
+# include <cstdlib>
+
+extern int g_signal;
 
 class Server {
     private:
@@ -14,6 +19,7 @@ class Server {
         int         _serverSocket;
 
         void    setupServerSocket(void);
+        void    runMainLoop(void);
     public:
         Server(int port, const std::string &password);
         ~Server(void);
