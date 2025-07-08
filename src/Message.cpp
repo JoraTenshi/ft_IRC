@@ -35,6 +35,26 @@ bool Message::checkCmdEnd(void)
 	return (false);
 }
 
+void	Message::clear()
+{
+	unsigned long	pos;
+
+	if (checkCmdEnd())
+	{
+		pos = _input.find("\r\n");
+		
+		if (pos == std::string::npos)
+			return ;
+		else if (pos == _input.length() - 2)
+			_input = "";
+		else
+			_input = _input.substr(pos + 2, _input.length());
+			
+		_cmd = "";
+		_args.clear();
+	}
+}
+
 void Message::parseInput(void)
 {
     if (!checkCmdEnd())

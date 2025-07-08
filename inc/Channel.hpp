@@ -1,0 +1,42 @@
+# ifndef CHANNEL_HPP
+# define CHANNEL_HPP
+
+# include "User.hpp"
+# include <vector>
+
+class Channel
+{
+	private:
+		std::string _name;				//Channel name
+		std::string _pass;				//Channel password (if any)
+		std::string _topic;				//Channel topic
+		std::string _mode;				//Channel mode (e.g., private, secret, etc.)
+		std::vector<User> _users;		//List of users in the channel
+		std::vector<User> _ops;			//List of admins in the channel (if any)
+		int _maxUsers;					//Maximum number of users allowed in the channel
+
+	public:
+		Channel();
+		Channel(const std::string &name, std::vector<User> ops);
+		Channel(const Channel &src);
+		~Channel();
+		Channel &operator=(const Channel &src);
+
+		const std::string &getName() const;
+		const std::string &getPass() const;
+		const std::vector<User> &getUsers() const;
+		const std::vector<User> &getOps() const;
+		int getMaxUsers() const;
+		const std::string &getTopic() const;
+		const std::string &getMode() const;
+
+		void setName(const std::string &name);
+		void setPass(const std::string &pass);
+		void setUsers(const std::vector<User> &users);
+		void setOps(const std::vector<User> &ops);
+		void setMaxUsers(int maxUsers);
+		void setTopic(const std::string &topic);
+		void setMode(const std::string &mode);
+};
+
+# endif

@@ -30,7 +30,7 @@ class Message
 
 		void	setInput(std::string input);
 
-//		void clear();
+		void clear();
 		bool checkCmdEnd(void);
 		void parseInput(void);
 };
