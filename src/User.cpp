@@ -33,6 +33,8 @@ int User::getFd() const { return _fd; }
 
 bool User::isAuthenticated() const { return _isAuthenticated; }
 
+bool User::operator==(const User &other) const { return _fd == other._fd; }
+
 void User::setNickname(const std::string &nickname) { _nickname = nickname; }
 void User::setUsername(const std::string &username) { _username = username; }
 void User::setRealname(const std::string &realname) { _realname = realname; }

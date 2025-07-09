@@ -7,7 +7,10 @@ REMOVE = rm -rf
 SRC = src/main.cpp\
 	src/Server.cpp\
 	src/User.cpp\
-	src/Message.cpp
+	src/Message.cpp\
+	src/Channel.cpp\
+	src/Commands/ExecuteCommand.cpp\
+	src/Commands/Join.cpp
 
 OBJS = $(addprefix obj/, $(SRC:.cpp=.o))
 

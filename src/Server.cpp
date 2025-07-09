@@ -56,6 +56,8 @@ void    Server::setupServerSocket(void) {
     std::cout << "Server listening on port " << _port << std::endl;
 }
 
+void signalHandler(int signum) { g_signal = signum; }
+
 void    Server::runMainLoop(void) {
     pollfd  serverPoll;
     serverPoll.fd = _serverSocket;
@@ -63,17 +65,13 @@ void    Server::runMainLoop(void) {
     serverPoll.revents = 0;
     _pollFds.push_back(serverPoll);
 
-    while (1) {
-        //cuando hago ctrl c despues del serverstoped sale por poll failed
-        if (g_signal == SIGINT) {
-            std::cout << "\nShutting down server..." << std::endl;
-            stop();
-            exit(0);
-        }
-        if (poll(&_pollFds[0], _pollFds.size(), -1) < 0)
+    std::signal(SIGINT, signalHandler);   
+ 
+    while (!g_signal) {
+        if (poll(&_pollFds[0], _pollFds.size(), -1) < 0 && g_signal == 0)
             throw std::runtime_error("Poll failed");
-
-        for (size_t i = 1; i < _pollFds.size(); ++i) {
+        
+        for (size_t i = 0; i < _pollFds.size(); ++i) {
             if (_pollFds[i].revents == POLLIN) {
                 if (_pollFds[i].fd == _serverSocket)
                     newConnection();
@@ -81,6 +79,12 @@ void    Server::runMainLoop(void) {
                     checkUpdate(_users[_pollFds[i].fd]);
             }
         }
+    }
+
+    if (g_signal == SIGINT) {
+        std::cout << "\nShutting down server..." << std::endl;
+        stop();
+        exit(0);
     }
 }
 
@@ -122,15 +126,28 @@ void    Server::checkUpdate(User &user) {
     ssize_t bytes = recv(user.getFd(), buffer, sizeof(buffer) - 1, 0);
     if (bytes < 0)
         exit(-1);
-/*     if (bytes == 0)
-        disconnectUser(user); */
+    if (bytes == 0)
+        disconnectUser(user);
     if (bytes > 0) {
         user.getMessage().setInput(user.getMessage().getInput() + buffer);
-        if (user.getMessage().checkCmdEnd())
-        {
+        if (user.getMessage().checkCmdEnd()) {
             user.getMessage().parseInput();
             executeCommand(user);
 //            user.getMessage().clear();
+        }
+    }
+}
+
+void    Server::disconnectUser(User &user) {
+    User aux = user;
+
+    for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it) {
+        if (aux.getFd() == it->fd) {
+            std::cout << "Client " << it->fd << " disconnected." << std::endl;
+            _pollFds.erase(it);
+            _users.erase(aux.getFd());
+            close(aux.getFd());
+            break;
         }
     }
 }

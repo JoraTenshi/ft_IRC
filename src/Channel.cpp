@@ -25,6 +25,7 @@ std::vector<User> &Channel::getOps() { return _ops; }
 int Channel::getMaxUsers() const { return _maxUsers; }
 const std::string &Channel::getTopic() const { return _topic; }
 const std::string &Channel::getMode() const { return _mode; }
+const std::vector<User> &Channel::getInvited() const { return _invited; }
 
 void Channel::setName(const std::string &name) { _name = name; }
 void Channel::setPass(const std::string &pass) { _pass = pass; }
@@ -33,3 +34,4 @@ void Channel::setOps(const std::vector<User> &ops) { _ops = ops; }
 void Channel::setMaxUsers(int maxUsers) { _maxUsers = maxUsers; }
 void Channel::setTopic(const std::string &topic) { _topic = topic; }
 void Channel::setMode(const std::string &mode) { _mode = mode; }
+void Channel::setInvited(const std::vector<User> &invited) { _invited = invited; }

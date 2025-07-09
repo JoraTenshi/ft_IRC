@@ -2,8 +2,6 @@
 
 int g_signal = 0;
 
-void signalHandler(int signum) { g_signal = signum; }
-
 bool isValidPort(const std::string& portStr) 
 {
     for (size_t i = 0; i < portStr.length(); ++i)
@@ -34,9 +32,6 @@ int main(int argc, char* argv[])
     }
 
     int port = std::atoi(portStr.c_str());
-	
-    std::signal(SIGINT, signalHandler);
-    std::signal(SIGQUIT, signalHandler);
 
     try 
 	{

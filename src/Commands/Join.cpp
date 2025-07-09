@@ -51,8 +51,8 @@ void Server::JoinCmd(User &user)
 
 	//Server response if channel exists but has user limit and it is full
 	if (this->_channels.find(user.getMessage().getArgs()[0]) != this->_channels.end() && 
-		this->_channels[user.getMessage().getArgs()[0]].getMaxUsers() > 0 && 
-		this->_channels[user.getMessage().getArgs()[0]].getUsers().size() == this->_channels[user.getMessage().getArgs()[0]].getMaxUsers())
+    	this->_channels[user.getMessage().getArgs()[0]].getMaxUsers() > 0 && 
+    	this->_channels[user.getMessage().getArgs()[0]].getUsers().size() == static_cast<size_t>(this->_channels[user.getMessage().getArgs()[0]].getMaxUsers()))
 	{
 		response = ":" + user.getHostname() + " 471 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :Cannot join channel (+l)\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);

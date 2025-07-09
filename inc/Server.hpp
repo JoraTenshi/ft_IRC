@@ -32,7 +32,7 @@ class Server {
         void    newConnection(void);
         void    newUser(int userSocket, const std::string &hostname);
         void    checkUpdate(User &user);
-        //void    disconnectUser(User &user);
+        void    disconnectUser(User &user);
     public:
         Server(int port, const std::string &password);
         ~Server(void);

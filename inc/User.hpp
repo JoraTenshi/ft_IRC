@@ -41,6 +41,8 @@ class User
 		int getFd() const;
 		bool isAuthenticated() const;
 
+		bool operator==(const User &other) const;
+
 		void setNickname(const std::string &nickname);
 		void setUsername(const std::string &username);
 		void setRealname(const std::string &realname);

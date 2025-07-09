@@ -2,7 +2,7 @@
 
 void Server:: executeCommand(User &user)
 {
-	bool authenticated = user.isAuthenticated();
+	//bool authenticated = user.isAuthenticated();
 
 	std::cout << "[ CLIENT ] Message received from client: " << user.getFd() << "( " << user.getHostname() << " ) - " << user.getMessage().getInput();
 	for (size_t i = 0; i < user.getMessage().getArgs().size(); ++i)
