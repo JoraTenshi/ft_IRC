@@ -39,6 +39,7 @@ class Server {
 
         void    start(void);
         void    stop(void);
+        void    executeCommand(User &user);
 
         void    JoinCmd(User &user);
 };

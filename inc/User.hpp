@@ -23,7 +23,6 @@ class User
 		int 		_fd; 					// File descriptor for the user's socket
 		bool 		_isAuthenticated; 		// Flag to check if the user is authenticated
 		Message 	_message; 				// Message object to handle user messages
-		bool		_op;					// Flag to check if the user is an operator
 
 	public:
 		User();
@@ -41,7 +40,6 @@ class User
 		Message &getMessage();
 		int getFd() const;
 		bool isAuthenticated() const;
-		bool isOp() const;
 
 		void setNickname(const std::string &nickname);
 		void setUsername(const std::string &username);
@@ -50,7 +48,6 @@ class User
 		void setHostname(const std::string &hostname);
 		void setFd(int fd);
 		void setAuthenticated(bool authenticated);
-		void setOp(bool op);
 };
 
 std::ostream &operator<<(std::ostream &out, const User &user);

@@ -27,6 +27,7 @@ void Server::JoinCmd(User &user)
 	{
 		Channel newChannel(user.getMessage().getArgs()[0], std::vector<User>(1, user));
 		newChannel.getUsers().push_back(user);
+		newChannel.getOps().push_back(user);
 		_channels[user.getMessage().getArgs()[0]] = newChannel;
 		response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " JOIN " + user.getMessage().getArgs()[0] + "\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);

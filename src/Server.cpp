@@ -129,7 +129,7 @@ void    Server::checkUpdate(User &user) {
         if (user.getMessage().checkCmdEnd())
         {
             user.getMessage().parseInput();
-            //Switch y ejecucion comando
+            executeCommand(user);
 //            user.getMessage().clear();
         }
     }
