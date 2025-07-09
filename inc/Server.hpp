@@ -1,7 +1,7 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "User.hpp"
+# include "Channel.hpp"
 # include <cstring>
 # include <iostream>
 # include <netinet/in.h>
@@ -10,6 +10,7 @@
 # include <fcntl.h>
 # include <csignal>
 # include <cstdlib>
+# include <algorithm>
 # include <vector>
 # include <poll.h>
 # include <map>
@@ -19,11 +20,12 @@ extern int g_signal;
 
 class Server {
     private:
-        int                         _port;
-        std::string                 _password;
-        int                         _serverSocket;
-        std::vector<struct pollfd>  _pollFds;
-        std::map<int, User>       _users;
+        int                        		_port;
+        std::string                 	_password;
+        int                         	_serverSocket;
+        std::vector<struct pollfd>  	_pollFds;
+        std::map<int, User>       		_users;
+        std::map<std::string, Channel> 	_channels;
 
         void    setupServerSocket(void);
         void    runMainLoop(void);
@@ -37,6 +39,8 @@ class Server {
 
         void    start(void);
         void    stop(void);
+
+        void    JoinCmd(User &user);
 };
 
 #endif

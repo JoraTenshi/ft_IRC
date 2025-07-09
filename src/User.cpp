@@ -30,9 +30,11 @@ std::string User::getHostname() const { return _hostname; }
 const Message &User::getMessage() const { return _message; }
 Message &User::getMessage() { return _message; }
 int User::getFd() const { return _fd; }
+bool User::isOp() const { return _op; }
 
 
 bool User::isAuthenticated() const { return _isAuthenticated; }
+
 
 void User::setNickname(const std::string &nickname) { _nickname = nickname; }
 void User::setUsername(const std::string &username) { _username = username; }
@@ -41,6 +43,7 @@ void User::setPassword(const std::string &password) { _password = password; }
 void User::setHostname(const std::string &hostname) { _hostname = hostname; }
 void User::setFd(int fd) { _fd = fd; }
 void User::setAuthenticated(bool authenticated) { _isAuthenticated = authenticated; }
+void User::setOp(bool op) { _op = op; }
 
 std::ostream &operator<<(std::ostream &out, const User &user) {
 	out << "User Info:" << std::endl;

@@ -20,8 +20,8 @@ Channel &Channel::operator=(const Channel &src) {
 
 const std::string &Channel::getName() const { return _name; }
 const std::string &Channel::getPass() const { return _pass; }
-const std::vector<User> &Channel::getUsers() const { return _users; }
-const std::vector<User> &Channel::getOps() const { return _ops; }
+std::vector<User> &Channel::getUsers() { return _users; }
+std::vector<User> &Channel::getOps() { return _ops; }
 int Channel::getMaxUsers() const { return _maxUsers; }
 const std::string &Channel::getTopic() const { return _topic; }
 const std::string &Channel::getMode() const { return _mode; }

@@ -5,17 +5,21 @@
 # include <string>
 # include <vector>
 
+/**
+ * @brief Class used by every instance of User class to parse the input messages from the user and process them.
+ * 
+ */
 class Message 
 {
 	private:
 		//This is the full inpout line we are parsing
-		std::string _input; 
+		std::string 				_input; 
 		//This is the command we are parsing, e.g. JOIN, PART, PRIVMSG, etc. It is the first word in a message.
-		std::string _cmd;
+		std::string 				_cmd;
 		//This are the arguments of the command, e.g. the channel name in JOIN, the message in PRIVMSG, etc. They are between command and the message, separated by colon.
-		std::vector<std::string> _args;
+		std::vector<std::string> 	_args;
 		//This is the message we are parsing, the part that is just plain text. It comes after the colon and is the last part of the message.
-		std::string _msg;				
+		std::string 				_msg;				
 	
 	public:
 		Message();

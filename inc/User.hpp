@@ -2,7 +2,7 @@
 # define USER_HPP
 
 # include <iostream>
-# include "Message.hpp" // Include the Message class for handling user messages
+# include "Message.hpp"
 # include <string>
 # include <poll.h>
 
@@ -19,11 +19,11 @@ class User
 		std::string _username; 				// User's username
 		std::string _realname; 				// User's real name
 		std::string _password; 				// User's password
-		std::string _hostname; 					// User's IP address
+		std::string _hostname; 				// User's IP address
 		int 		_fd; 					// File descriptor for the user's socket
 		bool 		_isAuthenticated; 		// Flag to check if the user is authenticated
 		Message 	_message; 				// Message object to handle user messages
-		//bool		_admin;
+		bool		_op;					// Flag to check if the user is an operator
 
 	public:
 		User();
@@ -41,6 +41,7 @@ class User
 		Message &getMessage();
 		int getFd() const;
 		bool isAuthenticated() const;
+		bool isOp() const;
 
 		void setNickname(const std::string &nickname);
 		void setUsername(const std::string &username);
@@ -49,6 +50,7 @@ class User
 		void setHostname(const std::string &hostname);
 		void setFd(int fd);
 		void setAuthenticated(bool authenticated);
+		void setOp(bool op);
 };
 
 std::ostream &operator<<(std::ostream &out, const User &user);

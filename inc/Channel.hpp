@@ -1,9 +1,13 @@
-# ifndef CHANNEL_HPP
+#ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
 # include "User.hpp"
 # include <vector>
 
+/**
+ * @brief Class to store all information about a channel, including its name, password, topic, mode, users, operators, and maximum number of users.
+ * 
+ */
 class Channel
 {
 	private:
@@ -12,7 +16,8 @@ class Channel
 		std::string _topic;				//Channel topic
 		std::string _mode;				//Channel mode (e.g., private, secret, etc.)
 		std::vector<User> _users;		//List of users in the channel
-		std::vector<User> _ops;			//List of admins in the channel (if any)
+		std::vector<User> _ops;			//List of operators in the channel, minimum one user must be an operator
+		std::vector<User> _invited;		//List of users invited to the channel
 		int _maxUsers;					//Maximum number of users allowed in the channel
 
 	public:
@@ -24,11 +29,12 @@ class Channel
 
 		const std::string &getName() const;
 		const std::string &getPass() const;
-		const std::vector<User> &getUsers() const;
-		const std::vector<User> &getOps() const;
+		std::vector<User> &getUsers();
+		std::vector<User> &getOps();
 		int getMaxUsers() const;
 		const std::string &getTopic() const;
 		const std::string &getMode() const;
+		const std::vector<User> &getInvited() const;
 
 		void setName(const std::string &name);
 		void setPass(const std::string &pass);
@@ -37,6 +43,7 @@ class Channel
 		void setMaxUsers(int maxUsers);
 		void setTopic(const std::string &topic);
 		void setMode(const std::string &mode);
+		void setInvited(const std::vector<User> &invited);
 };
 
-# endif
+#endif
