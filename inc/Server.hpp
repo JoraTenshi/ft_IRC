@@ -42,6 +42,9 @@ class Server {
         void    executeCommand(User &user);
 
         void    JoinCmd(User &user);
+        void    PassCmd(User &user);
+        void    NickCmd(User &user);
+        void    UserCmd(User &user);
 };
 
 #endif

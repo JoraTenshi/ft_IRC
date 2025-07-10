@@ -10,7 +10,7 @@ SRC = src/main.cpp\
 	src/Message.cpp\
 	src/Channel.cpp\
 	src/Commands/ExecuteCommand.cpp\
-	src/Commands/Join.cpp
+	src/Commands/JoinCmd.cpp
 
 OBJS = $(addprefix obj/, $(SRC:.cpp=.o))
 
