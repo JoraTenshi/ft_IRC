@@ -18,6 +18,7 @@
 
 extern int g_signal;
 
+class Channel;
 class Server {
     private:
         int                        		_port;
@@ -27,19 +28,22 @@ class Server {
         std::map<int, User>       		_users;
         std::map<std::string, Channel> 	_channels;
 
+    public:
+        Server(int port, const std::string &password);
+        ~Server(void);
+        
+        void    start(void);
+        void    stop(void);
+        void    executeCommand(User &user);
+        
         void    setupServerSocket(void);
         void    runMainLoop(void);
         void    newConnection(void);
         void    newUser(int userSocket, const std::string &hostname);
         void    checkUpdate(User &user);
         void    disconnectUser(User &user);
-    public:
-        Server(int port, const std::string &password);
-        ~Server(void);
-
-        void    start(void);
-        void    stop(void);
-        void    executeCommand(User &user);
+        std::vector<Channel *> findChannels(User &aux);
+        void    rmrInvited(User &user);
 
         void    JoinCmd(User &user);
         void    PassCmd(User &user);

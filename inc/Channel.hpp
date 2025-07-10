@@ -3,6 +3,7 @@
 
 # include "User.hpp"
 # include <vector>
+# include <algorithm>
 
 /**
  * @brief Class to store all information about a channel, including its name, password, topic, mode, users, operators, and maximum number of users.
@@ -44,6 +45,11 @@ class Channel
 		void setTopic(const std::string &topic);
 		void setMode(const std::string &mode);
 		void setInvited(const std::vector<User> &invited);
+
+		bool	isUser(User user) const;
+		void	rmInvited(User user);
+		void	rmUser(User &user);
+		void	rmOps(User &user);
 };
 
 #endif

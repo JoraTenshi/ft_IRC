@@ -35,3 +35,18 @@ void Channel::setMaxUsers(int maxUsers) { _maxUsers = maxUsers; }
 void Channel::setTopic(const std::string &topic) { _topic = topic; }
 void Channel::setMode(const std::string &mode) { _mode = mode; }
 void Channel::setInvited(const std::vector<User> &invited) { _invited = invited; }
+
+bool	Channel::isUser(User user) const { return (std::find(_users.begin(), _users.end(), user) != _users.end()); }
+
+void	Channel::rmInvited(User user) { _invited.erase(std::remove(_invited.begin(), _invited.end(), user), _invited.end()); }
+
+void	Channel::rmUser(User &user) {
+	rmOps(user);
+	std::vector<User> &users = getUsers();
+	users.erase(std::remove(users.begin(), users.end(), user), users.end());
+}
+
+void	Channel::rmOps(User &user) {
+	std::vector<User> &ops = getOps();
+	ops.erase(std::remove(ops.begin(), ops.end(), user), ops.end());
+}

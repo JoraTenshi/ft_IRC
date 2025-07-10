@@ -150,11 +150,33 @@ void    Server::disconnectUser(User &user) {
 
     for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it) {
         if (aux.getFd() == it->fd) {
-            std::cout << "Client " << it->fd << " disconnected." << std::endl;
+            std::vector<Channel *> channels = findChannels(aux);
+            for (size_t i = 0; i < channels.size(); ++i) {
+                //channels[i]->msgUserExit() crear cuando este los mensajes entre usuarios
+                channels[i]->rmInvited(aux);
+                channels[i]->rmUser(aux);
+                //me falta tema de reasognar ops
+            }
+            rmrInvited(user);
             _pollFds.erase(it);
             _users.erase(aux.getFd());
             close(aux.getFd());
+            std::cout << "User " << it->fd << " disconnected." << std::endl;
             break;
         }
     }
+}
+
+void    Server::rmrInvited(User &user) {
+    for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+        it->second.rmInvited(user);
+}
+
+std::vector<Channel *>  Server::findChannels(User &user) {
+    std::vector<Channel *> userChannels;
+
+    for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+        if (it->second.isUser(user))
+            userChannels.push_back(&(it->second));
+    return userChannels;
 }
