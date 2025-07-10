@@ -64,18 +64,18 @@ void Message::parseInput(void)
     while (tmp.find(" ") != std::string::npos && tmp.find(" ") < tmp.find(":"))
     {
         _args.push_back(tmp.substr(0, tmp.find(" ")));
-        tmp = tmp.substr(tmp.find(" ") + 1, tmp.length());
+        tmp.erase(0, tmp.find(" ") + 1);
     }
 
 	//If there is no space but a colon, we still need to add the command to the args
 	if (tmp.find(" ") == std::string::npos)
 	{
 		_args.push_back(tmp.substr(0, tmp.length()));
-		tmp = tmp.substr(0, tmp.length());
+		tmp.erase(0, tmp.length());
 	}
 	//If there is no colon, we add the remaining part as the last argument
 	if (tmp.find(":") != std::string::npos)
-		_input = tmp.substr(tmp.find(":") + 1, tmp.length());
+		_input = tmp.erase(0, tmp.find(":") + 1);
 	else
 		_input = "";
 }

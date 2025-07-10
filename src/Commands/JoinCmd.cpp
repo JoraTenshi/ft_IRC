@@ -102,7 +102,7 @@ void Server::JoinCmd(User &user)
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
 	}
-	response = ":" + user.getHostname() + " 353 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :";
+	response = ":" + user.getHostname() + " 353 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :NAMES list:";
 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{
 		if (it == users.begin())
@@ -120,7 +120,7 @@ void Server::JoinCmd(User &user)
 	}
 	response += "\r\n";
 
-	std::string eon = ":" + user.getHostname() + " 366 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :End of /NAMES list\r\n";
+	std::string eon = ":" + user.getHostname() + " 366 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :End of NAMES list\r\n";
 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{
 		send(it->getFd(), response.c_str(), response.size(), 0);

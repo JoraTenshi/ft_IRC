@@ -14,7 +14,7 @@ void Server::PassCmd(User &user)
 	if (!response.empty())
 	{
 		send(user.getFd(), response.c_str(), response.size(), 0);
-		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
 	}
 	else
 		user.setPassword(true);

@@ -12,7 +12,7 @@ void Server:: executeCommand(User &user)
 	if (user.getMessage().getCmd() == "PASS")
 		PassCmd(user);
 	else if (!user.getPassword())
-		std::cout << " [ SERVER ] Client " << user.getFd() << " has not sent correct password. Denied." << std::endl;
+		std::cout << "[ SERVER ] Client " << user.getFd() << " has not sent correct password. Denied." << std::endl;
 	else if (user.getMessage().getCmd() == "NICK")
 		NickCmd(user);
 	else if (user.getMessage().getCmd() == "USER")
