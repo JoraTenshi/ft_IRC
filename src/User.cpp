@@ -1,8 +1,8 @@
 #include "../inc/User.hpp"
 
-User::User() :_isAuthenticated(false) {}
+User::User() : _password(false), _isAuthenticated(false){}
 
-User::User(int fd) : _fd(fd), _isAuthenticated(false) {}
+User::User(int fd) : _password(false), _fd(fd), _isAuthenticated(false){}
 
 User::User(const User &src) {*this = src; }
 
@@ -25,7 +25,7 @@ User &User::operator=(const User &src) {
 std::string User::getNickname() const { return _nickname; }
 std::string User::getUsername() const { return _username; }
 std::string User::getRealname() const { return _realname; }
-std::string User::getPassword() const { return _password; }
+bool 		User::getPassword() const { return _password; }
 std::string User::getHostname() const { return _hostname; }
 const Message &User::getMessage() const { return _message; }
 Message &User::getMessage() { return _message; }
@@ -38,7 +38,7 @@ bool User::operator==(const User &other) const { return _fd == other._fd; }
 void User::setNickname(const std::string &nickname) { _nickname = nickname; }
 void User::setUsername(const std::string &username) { _username = username; }
 void User::setRealname(const std::string &realname) { _realname = realname; }
-void User::setPassword(const std::string &password) { _password = password; }
+void User::setPassword(const bool &password) { _password = password; }
 void User::setHostname(const std::string &hostname) { _hostname = hostname; }
 void User::setFd(int fd) { _fd = fd; }
 void User::setAuthenticated(bool authenticated) { _isAuthenticated = authenticated; }

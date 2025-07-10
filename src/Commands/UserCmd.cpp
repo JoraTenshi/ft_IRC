@@ -4,17 +4,18 @@ void Server::UserCmd(User &user)
 {
 	std::string response = "";
 
-	if (user.getMessage().getArgs().size() < 3 || user.getMessage().getArgs()[0] == "USER")
-		response = ":" + user.getHostname() + " 461 " + user.getNickname() + " USER :Not enough parameters\r\n";
-	else if (user.isAuthenticated())
+	if (user.isAuthenticated())
 	    response = ":" + user.getHostname() + " 462 " + user.getNickname() + " :You may not reregister\r\n";
-	else if (user.getPassword() == "" || user.getNickname() == "")
+	else if (user.getMessage().getArgs().size() < 3)
+		response = ":" + user.getHostname() + " 461 " + user.getNickname() + " USER :Not enough parameters\r\n";
+	else if (!user.getPassword() || user.getNickname() == "")
 		return ;
 	
-	if (response.empty())
+	if (!response.empty())
 	{
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
+		return ;
 	}
 	user.setUsername(user.getMessage().getArgs()[0]);
 	if (user.getMessage().getArgs().size() > 1)
@@ -72,7 +73,7 @@ void Server::UserCmd(User &user)
 	 * 		The text used in the last param of this message may vary, and SHOULD be displayed as-is by IRC clients to their users.
 	 * 
 	 */
-	response = ":" + user.getHostname() + " 375 " + user.getNickname() + " :- " + user.getHostname() + " Message of the Day - \r\n";
+	response = ":" + user.getHostname() + " 375 " + user.getNickname() + " :" + user.getHostname() + " Message of the Day - \r\n";
 	send(user.getFd(), response.c_str(), response.size(), 0);
 	std::cout << " [ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 
@@ -89,7 +90,7 @@ void Server::UserCmd(User &user)
 	 * @brief Indicates the end of the Message of the Day to the client. The text used in the last param of this message may vary.
 	 * 
 	 */
-	response = ":" + user.getHostname() + " 376 " + user.getNickname() + " :End of /MOTD command.\r\n";
+	response = ":" + user.getHostname() + " 376 " + user.getNickname() + "Ending of MOTD\r\n";
 	send(user.getFd(), response.c_str(), response.size(), 0);
 	std::cout << " [ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 }

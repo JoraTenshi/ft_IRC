@@ -76,7 +76,10 @@ void    Server::runMainLoop(void) {
                 if (_pollFds[i].fd == _serverSocket)
                     newConnection();
                 else
+                {
+                    std::cout << "Checking updates for user with fd: " << _pollFds[i].fd << std::endl;
                     checkUpdate(_users[_pollFds[i].fd]);
+                }
             }
         }
     }
@@ -129,12 +132,16 @@ void    Server::checkUpdate(User &user) {
     if (bytes == 0)
         disconnectUser(user);
     if (bytes > 0) {
-        user.getMessage().setInput(user.getMessage().getInput() + buffer);
-        if (user.getMessage().checkCmdEnd()) {
-            user.getMessage().parseInput();
-            executeCommand(user);
-//            user.getMessage().clear();
+        std::cout << "Received " << bytes << " bytes from user with fd: " << user.getFd() << std::endl;
+        std::string message(buffer);
+        user.getMessage().setInput(user.getMessage().getInput() + message);
+        if (user.getMessage().checkCmdEnd() == false) {
+            std::cout << "Incomplete command, waiting for more data..." << std::endl;
+            return ;
         }
+        user.getMessage().parseInput();
+        executeCommand(user);
+        user.getMessage().clear();
     }
 }
 

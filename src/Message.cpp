@@ -37,22 +37,15 @@ bool Message::checkCmdEnd(void)
 
 void	Message::clear()
 {
-	unsigned long	pos;
-
-	if (checkCmdEnd())
-	{
-		pos = _input.find("\r\n");
+	size_t pos = _input.find("\r\n");
+	if (pos != std::string::npos)
+		_input = _input.substr(pos + 2);
+	else
+		_input.clear();
 		
-		if (pos == std::string::npos)
-			return ;
-		else if (pos == _input.length() - 2)
-			_input = "";
-		else
-			_input = _input.substr(pos + 2, _input.length());
-			
-		_cmd = "";
-		_args.clear();
-	}
+	_cmd.clear();
+	_args.clear();
+	_msg.clear();
 }
 
 void Message::parseInput(void)
@@ -60,37 +53,31 @@ void Message::parseInput(void)
     if (!checkCmdEnd())
         return ;
     
-
-	//preguntar como coño va el tema del \r\n
+	//If using NetCat, please ensure to use -C flag to enable \r\n at the end of the input.
     int end = _input.find("\r\n"); 				//Find end of line
     std::string tmp = _input.substr(0, end);	//Get the input line up to the end
-    size_t colonPos = tmp.find(':');			//Find the position of the colon, which separates the command and args from the message	
-    size_t spacePos = tmp.find(' ');			//Find the position of the first space, which separates the command from the args
-    _cmd = tmp.substr(0, spacePos);				//Get the command, which is the first word in the input line
-    tmp.erase(0, spacePos + 1);					//Remove the command from the input line, leaving only the args and message
+	
+	_cmd = tmp.substr(0, tmp.find(" "));				//Get the command, which is the first word in the input line
+    tmp = tmp.substr(tmp.find(" ") + 1, tmp.length());	//Remove the command from the input line, leaving only the args and message
     
 	//Parse the input up until the colon, which separates the args from the message
-    while (spacePos != std::string::npos && colonPos != 0)
+    while (tmp.find(" ") != std::string::npos && tmp.find(" ") < tmp.find(":"))
     {
-        _args.push_back(tmp.substr(0, spacePos));
-        tmp.erase(0, spacePos + 1);
+        _args.push_back(tmp.substr(0, tmp.find(" ")));
+        tmp = tmp.substr(tmp.find(" ") + 1, tmp.length());
     }
 
 	//If there is no space but a colon, we still need to add the command to the args
-	if (spacePos == std::string::npos && colonPos != std::string::npos)
+	if (tmp.find(" ") == std::string::npos)
 	{
-		_args.push_back(tmp.substr(0, colonPos));
-		tmp.erase(0, colonPos + 1);
+		_args.push_back(tmp.substr(0, tmp.length()));
+		tmp = tmp.substr(0, tmp.length());
 	}
 	//If there is no colon, we add the remaining part as the last argument
-	else if (colonPos != std::string::npos)
-	{
-		_args.push_back(tmp.substr(0, colonPos));
-		tmp.erase(0, colonPos + 1);
-	}
-
-	_msg = tmp;									//The remaining part is the message
-	_input.erase(0, end + 2);					//Remove the parsed line from the input
+	if (tmp.find(":") != std::string::npos)
+		_input = tmp.substr(tmp.find(":") + 1, tmp.length());
+	else
+		_input = "";
 }
 
 std::ostream &operator<<(std::ostream &out, const Message &message)

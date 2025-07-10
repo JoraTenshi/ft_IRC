@@ -18,7 +18,7 @@ class User
 		std::string _nickname; 				// User's nickname
 		std::string _username; 				// User's username
 		std::string _realname; 				// User's real name
-		std::string _password; 				// User's password
+		bool		_password; 				// User's password
 		std::string _hostname; 				// User's IP address
 		int 		_fd; 					// File descriptor for the user's socket
 		bool 		_isAuthenticated; 		// Flag to check if the user is authenticated
@@ -34,7 +34,7 @@ class User
 		std::string getNickname() const;
 		std::string getUsername() const;
 		std::string getRealname() const;
-		std::string getPassword() const;
+		bool 		getPassword() const;
 		std::string getHostname() const;
 		const Message &getMessage() const;
 		Message &getMessage();
@@ -46,7 +46,7 @@ class User
 		void setNickname(const std::string &nickname);
 		void setUsername(const std::string &username);
 		void setRealname(const std::string &realname);
-		void setPassword(const std::string &password);
+		void setPassword(const bool &password);
 		void setHostname(const std::string &hostname);
 		void setFd(int fd);
 		void setAuthenticated(bool authenticated);

@@ -9,14 +9,14 @@ void Server:: executeCommand(User &user)
 		std::cout << " : " << user.getMessage().getMsg();
 	std::cout << std::endl;
 
-	if (!user.isAuthenticated())
-		std::cout << " [ SERVER ] Client " << user.getFd() << " is not authenticated. Denied." << std::endl;
-	else if (user.getMessage().getCmd() == "JOIN")
-		JoinCmd(user);
-	else if (user.getMessage().getCmd() == "PASS")
+	if (user.getMessage().getCmd() == "PASS")
 		PassCmd(user);
 	else if (user.getMessage().getCmd() == "NICK")
 		NickCmd(user);
 	else if (user.getMessage().getCmd() == "USER")
 		UserCmd(user);
+	else if (!user.isAuthenticated())
+		std::cout << "[ SERVER ] Client " << user.getFd() << " is not authenticated. Denied." << std::endl;
+	else if (user.getMessage().getCmd() == "JOIN")
+		JoinCmd(user);
 }
