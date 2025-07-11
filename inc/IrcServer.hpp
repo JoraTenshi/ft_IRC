@@ -34,6 +34,8 @@ enum RPL {
     ERR_NOSUCHNICK = 401,        // :<server> 401 <nick> <target> :No such nick/channel //TODO
     ERR_NOTEXTTOSEND = 412,      // :<server> 412 <nick> :No text to send
     CMD_JOIN = 1000,        // :<nick>!<user>@<host> JOIN #channel
+    ERR_NORECIPIENT = 411,      // :<server> 411 <nick> :No recipient given (PRIVMSG)
+    ERR_NOTEXTTOSEND = 412,      // :<server> 412 <nick> :No text to send (PRIVMSG)
     /// APART
     CMD_NOTICE,      // :<nick>!<user>@<host> NOTICE <target> :<message>
     CMD_MODE,        // :<nick>!<user>@<host> MODE #channel +mode [params]

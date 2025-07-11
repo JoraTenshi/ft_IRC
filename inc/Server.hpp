@@ -49,6 +49,7 @@ class Server {
         void    PassCmd(User &user);
         void    NickCmd(User &user);
         void    UserCmd(User &user);
+        void    PrivMsgCmd(User &user);
 };
 
 #endif
