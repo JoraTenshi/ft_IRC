@@ -50,6 +50,7 @@ class Channel
 		void	rmInvited(User user);
 		void	rmUser(User &user);
 		void	rmOps(User &user);
+		void	updateOps(User &user);
 };
 
 #endif

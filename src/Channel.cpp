@@ -41,7 +41,6 @@ bool	Channel::isUser(User user) const { return (std::find(_users.begin(), _users
 void	Channel::rmInvited(User user) { _invited.erase(std::remove(_invited.begin(), _invited.end(), user), _invited.end()); }
 
 void	Channel::rmUser(User &user) {
-	rmOps(user);
 	std::vector<User> &users = getUsers();
 	users.erase(std::remove(users.begin(), users.end(), user), users.end());
 }
@@ -49,4 +48,19 @@ void	Channel::rmUser(User &user) {
 void	Channel::rmOps(User &user) {
 	std::vector<User> &ops = getOps();
 	ops.erase(std::remove(ops.begin(), ops.end(), user), ops.end());
+}
+
+void	Channel::updateOps(User &user) {
+	std::vector<User>::iterator opIt = std::find(_ops.begin(), _ops.end(), user);
+	if (opIt != _ops.end())
+		rmOps(user);
+	if (_ops.empty() && !_users.empty()) {
+		for (std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
+            if (it->getFd() != user.getFd()) {
+                _ops.push_back(*it);
+                std::cout << "Auto-promoted user " << it->getFd() << " to operator in channel " << _name << std::endl;
+                break;
+            }
+        }
+	}
 }

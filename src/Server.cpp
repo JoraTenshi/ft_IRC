@@ -96,11 +96,14 @@ void    Server::newConnection(void) {
     socklen_t userLen = sizeof(userAddress);
 
     int userSocket = accept(_serverSocket, (struct sockaddr*)&userAddress, &userLen);
-    if (userSocket < 0)
-        exit(-1);
+    if (userSocket < 0) {
+        if (errno != EAGAIN && errno != EWOULDBLOCK)
+            std::cerr << "Accept failed: " << strerror(errno) << std::endl;
+        return ;
+    }
     if (fcntl(userSocket, F_SETFL, O_NONBLOCK) < 0) {
         close(userSocket);
-        exit(-1);
+        return;
     }
 
     newUser(userSocket, inet_ntoa(userAddress.sin_addr));
@@ -151,13 +154,22 @@ void    Server::disconnectUser(User &user) {
     for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it) {
         if (aux.getFd() == it->fd) {
             std::vector<Channel *> channels = findChannels(aux);
+            std::vector<std::string> channelsToRm;
+            //std::string quitMsg = ":" + aux.getNickname() + "!" + aux.getUsername() + "@" + aux.getHostname() + " QUIT :Client disconnected\r\n";
             for (size_t i = 0; i < channels.size(); ++i) {
+                //msgChannelUser(*channels[i], aux, quitMsg);
                 //channels[i]->msgUserExit() crear cuando este los mensajes entre usuarios
                 channels[i]->rmInvited(aux);
+                channels[i]->updateOps(aux);
                 channels[i]->rmUser(aux);
-                //me falta tema de reasognar ops
+                if (channels[i]->getUsers().empty()) {
+                    std::cout << "Channel " << channels[i]->getName() << " is empty, removing..." << std::endl;
+                    channelsToRm.push_back(channels[i]->getName());
+                }
             }
-            rmrInvited(user);
+            for (size_t i = 0; i < channelsToRm.size(); ++i)
+                _channels.erase(channelsToRm[i]);
+            rmrInvited(aux);
             _pollFds.erase(it);
             _users.erase(aux.getFd());
             close(aux.getFd());
