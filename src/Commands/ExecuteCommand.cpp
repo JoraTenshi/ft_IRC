@@ -21,4 +21,10 @@ void Server:: executeCommand(User &user)
 		std::cout << "[ SERVER ] Client " << user.getFd() << " is not authenticated. Denied." << std::endl;
 	else if (user.getMessage().getCmd() == "JOIN")
 		JoinCmd(user);
+	else if (user.getMessage().getCmd() == "PART")
+		PartCmd(user);
+	else if (user.getMessage().getCmd() == "PRIVMSG")
+		PrivMsgCmd(user);
+	else if (user.getMessage().getCmd() == "PING")
+		PingCmd(user);
 }

@@ -45,10 +45,12 @@ class Server {
         std::vector<Channel *> findChannels(User &aux);
         void    rmrInvited(User &user);
 
-        void    JoinCmd(User &user);
         void    PassCmd(User &user);
         void    NickCmd(User &user);
         void    UserCmd(User &user);
+        void    PingCmd(User &user);
+        void    JoinCmd(User &user);
+        void    PartCmd(User &user);
         void    PrivMsgCmd(User &user);
 };
 
