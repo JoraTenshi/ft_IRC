@@ -58,7 +58,7 @@ void Server::PartCmd(User &user)
 		_channels.erase(user.getMessage().getArgs()[0]);
 	else if (_channels[user.getMessage().getArgs()[0]].getUsers().size() >= 1 && _channels[user.getMessage().getArgs()[0]].getOps().size() == 0)
 	{
-		_channels[user.getMessage().getArgs()[0]].getOps().push_back(user);
+		_channels[user.getMessage().getArgs()[0]].getOps().push_back(_channels[user.getMessage().getArgs()[0]].getUsers()[0]);
 		response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +o " + user.getNickname() + "\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;

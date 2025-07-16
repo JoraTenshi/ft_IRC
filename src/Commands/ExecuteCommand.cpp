@@ -27,4 +27,6 @@ void Server:: executeCommand(User &user)
 		PrivMsgCmd(user);
 	else if (user.getMessage().getCmd() == "PING")
 		PingCmd(user);
+	else if (user.getMessage().getCmd() == "MODE")
+		ModeCmd(user);
 }

@@ -52,6 +52,7 @@ class Server {
         void    JoinCmd(User &user);
         void    PartCmd(User &user);
         void    PrivMsgCmd(User &user);
+        void    ModeCmd(User &user);
 };
 
 #endif
