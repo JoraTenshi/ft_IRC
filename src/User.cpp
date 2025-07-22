@@ -52,6 +52,6 @@ std::ostream &operator<<(std::ostream &out, const User &user) {
 	out << "IP: " << user.getHostname() << std::endl;
 	out << "File Descriptor: " << user.getFd() << std::endl;
 	out << "Authenticated: " << (user.isAuthenticated() ? "Yes" : "No") << std::endl;
-	out << "Message: " << user.getMessage().getInput() << std::endl; // Assuming _message is accessible
+	out << "Message: " << user.getMessage().getInput() << std::endl;
 	return out;
 }

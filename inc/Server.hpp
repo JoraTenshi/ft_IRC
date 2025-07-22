@@ -53,6 +53,8 @@ class Server {
         void    PartCmd(User &user);
         void    PrivMsgCmd(User &user);
         void    ModeCmd(User &user);
+        void    TopicCmd(User &user);
+        void    InviteCmd(User &user);
 };
 
 #endif
