@@ -1,6 +1,6 @@
 #include "../../inc/Server.hpp"
 
-void Server:: executeCommand(User &user)
+void Server::executeCommand(User &user)
 {
 	std::cout << "[ CLIENT ] Message received from client: " << user.getFd() << "( " << user.getHostname() << " ) - " << user.getMessage().getInput();
 	for (size_t i = 0; i < user.getMessage().getArgs().size(); ++i)
@@ -8,6 +8,9 @@ void Server:: executeCommand(User &user)
 	if (!user.getMessage().getMsg().empty())
 		std::cout << " : " << user.getMessage().getMsg();
 	std::cout << std::endl;
+
+/* 	if (user.getMessage().getCmd() == "CAP")
+        return; */ //pruebas para hexchat
 
 	if (user.getMessage().getCmd() == "PASS")
 		PassCmd(user);
@@ -27,6 +30,8 @@ void Server:: executeCommand(User &user)
 		PrivMsgCmd(user);
 	else if (user.getMessage().getCmd() == "PING")
 		PingCmd(user);
-	else if (user.getMessage().getCmd() == "MODE")
-		ModeCmd(user);
+/* 	else if (user.getMessage().getCmd() == "MODE")
+		ModeCmd(user); */
+	else if (user.getMessage().getCmd() == "QUIT")
+		QuitCmd(user);
 }

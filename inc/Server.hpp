@@ -3,6 +3,7 @@
 
 # include "Channel.hpp"
 # include <cstring>
+# include <cerrno>
 # include <iostream>
 # include <netinet/in.h>
 # include <sys/socket.h>
@@ -44,6 +45,7 @@ class Server {
         void    disconnectUser(User &user);
         std::vector<Channel *> findChannels(User &aux);
         void    rmrInvited(User &user);
+        void    msgChannelUser(Channel &channel, User &user, std::string message);
 
         void    PassCmd(User &user);
         void    NickCmd(User &user);
@@ -55,6 +57,7 @@ class Server {
         void    ModeCmd(User &user);
         void    TopicCmd(User &user);
         void    InviteCmd(User &user);
+        void    QuitCmd(User &user);
 };
 
 #endif

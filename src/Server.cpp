@@ -130,6 +130,9 @@ void    Server::checkUpdate(User &user) {
     memset(buffer, 0, sizeof(buffer));
 
     ssize_t bytes = recv(user.getFd(), buffer, sizeof(buffer) - 1, 0);
+
+    //std::cout << "que manda hexchat " << buffer << std::endl;
+
     if (bytes < 0)
         exit(-1);
     if (bytes == 0)
@@ -138,13 +141,19 @@ void    Server::checkUpdate(User &user) {
         std::cout << "Received " << bytes << " bytes from user with fd: " << user.getFd() << std::endl;
         std::string message(buffer);
         user.getMessage().setInput(user.getMessage().getInput() + message);
-        if (user.getMessage().checkCmdEnd() == false) {
+
+        while (user.getMessage().checkCmdEnd()) {
+            user.getMessage().parseInput();
+            executeCommand(user);
+            user.getMessage().clear();
+        }
+/*         if (user.getMessage().checkCmdEnd() == false) {
             std::cout << "Incomplete command, waiting for more data..." << std::endl;
             return ;
         }
         user.getMessage().parseInput();
         executeCommand(user);
-        user.getMessage().clear();
+        user.getMessage().clear(); */
     }
 }
 
@@ -155,10 +164,9 @@ void    Server::disconnectUser(User &user) {
         if (aux.getFd() == it->fd) {
             std::vector<Channel *> channels = findChannels(aux);
             std::vector<std::string> channelsToRm;
-            //std::string quitMsg = ":" + aux.getNickname() + "!" + aux.getUsername() + "@" + aux.getHostname() + " QUIT :Client disconnected\r\n";
+            std::string quitMsg = ":" + aux.getNickname() + "!" + aux.getUsername() + "@" + aux.getHostname() + " QUIT :Client disconnected\r\n";
             for (size_t i = 0; i < channels.size(); ++i) {
-                //msgChannelUser(*channels[i], aux, quitMsg);
-                //channels[i]->msgUserExit() crear cuando este los mensajes entre usuarios
+                msgChannelUser(*channels[i], aux, quitMsg);
                 channels[i]->rmInvited(aux);
                 channels[i]->updateOps(aux);
                 channels[i]->rmUser(aux);
@@ -175,6 +183,17 @@ void    Server::disconnectUser(User &user) {
             close(aux.getFd());
             std::cout << "User " << it->fd << " disconnected." << std::endl;
             break;
+        }
+    }
+}
+
+void    Server::msgChannelUser(Channel &channel, User &user, std::string message) {
+    std::vector<User> chUsers = channel.getUsers();
+    
+    for (std::vector<User>::iterator it = chUsers.begin(); it != chUsers.end(); ++it) {
+        if (it->getFd() != user.getFd()) {
+            send(it->getFd(), message.c_str(), message.length(), 0);
+            std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " ) - " << message;
         }
     }
 }

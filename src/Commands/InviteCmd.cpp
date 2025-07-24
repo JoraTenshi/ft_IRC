@@ -2,7 +2,7 @@
 
 void Server::InviteCmd(User &user)
 {
-    std::response = "";
+    std::string response = "";
 
     if (user.getMessage().getArgs().size() < 2)
     {

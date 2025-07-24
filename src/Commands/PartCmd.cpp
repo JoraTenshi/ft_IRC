@@ -42,7 +42,7 @@ void Server::PartCmd(User &user)
 
 	response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " PART " + user.getMessage().getArgs()[0] + "\r\n";
 	if (user.getMessage().getMsg().empty())
-		response += " Leaving\r\n";
+		response += user.getNickname() + " is leaving\r\n";
 	else
 		response += " " + user.getMessage().getMsg() + "\r\n";
 	send(user.getFd(), response.c_str(), response.size(), 0);

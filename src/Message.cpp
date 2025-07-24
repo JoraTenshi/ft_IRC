@@ -48,7 +48,7 @@ void	Message::clear()
 	_msg.clear();
 }
 
-void Message::parseInput(void)
+/* void Message::parseInput(void)
 {
     if (!checkCmdEnd())
         return ;
@@ -78,6 +78,63 @@ void Message::parseInput(void)
 		_input = tmp.erase(0, tmp.find(":") + 1);
 	else
 		_input = "";
+} */
+
+
+//con este parse del imput funciona con el hexchat pero da segmentation fault para el nc en el paso de USER
+void Message::parseInput(void) {
+    if (!checkCmdEnd())
+        return ;
+    
+    int end = _input.find("\r\n");
+    std::string tmp = _input.substr(0, end);
+    
+    // Extraer comando
+    size_t spacePos = tmp.find(" ");
+    if (spacePos != std::string::npos) {
+        _cmd = tmp.substr(0, spacePos);
+        tmp = tmp.substr(spacePos + 1);
+    } else {
+        _cmd = tmp;
+        _msg = "";
+        return;
+    }
+    
+    // Buscar mensaje (parte después de ':')
+    size_t colonPos = tmp.find(":");
+    std::string argsPart;
+    
+    if (colonPos != std::string::npos) {
+        argsPart = tmp.substr(0, colonPos);
+        // Quitar espacios al final de argsPart
+        while (!argsPart.empty() && argsPart[argsPart.length() - 1] == ' ')
+            argsPart = argsPart.substr(0, argsPart.length() - 1);
+        _msg = tmp.substr(colonPos + 1);
+    } else {
+        argsPart = tmp;
+        _msg = "";
+    }
+    
+    // Parsear argumentos correctamente
+    while (!argsPart.empty()) {
+        // Buscar primer espacio
+        size_t space = argsPart.find(" ");
+        if (space != std::string::npos) {
+            std::string arg = argsPart.substr(0, space);
+            if (!arg.empty()) {
+                _args.push_back(arg);
+            }
+            // Eliminar el argumento procesado y espacios adicionales
+            argsPart = argsPart.substr(space + 1);
+            while (!argsPart.empty() && argsPart[0] == ' ')
+                argsPart = argsPart.substr(1);
+        } else {
+            // No hay más espacios, añadir el resto como último argumento
+            if (!argsPart.empty())
+                _args.push_back(argsPart);
+            break;
+        }
+    }
 }
 
 std::ostream &operator<<(std::ostream &out, const Message &message)

@@ -17,6 +17,12 @@ void Server::UserCmd(User &user)
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 		return ;
 	}
+
+/* 	user.setUsername(user.getMessage().getArgs()[0]);
+    user.setRealname(user.getMessage().getMsg());  // El realname viene después del ':'
+
+    user.setAuthenticated(true); */ //prueba para hexchat
+
 	user.setUsername(user.getMessage().getArgs()[0]);
 	if (user.getMessage().getArgs().size() > 1)
 		user.setRealname(user.getMessage().getArgs()[1]);

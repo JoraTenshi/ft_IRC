@@ -15,6 +15,9 @@ SRC = src/main.cpp\
 	src/Commands/PassCmd.cpp\
 	src/Commands/UserCmd.cpp\
 	src/Commands/PrivMsgCmd.cpp\
+	src/Commands/PartCmd.cpp\
+	src/Commands/PingCmd.cpp\
+	src/Commands/QuitCmd.cpp
 
 OBJS = $(addprefix obj/, $(SRC:.cpp=.o))
 
