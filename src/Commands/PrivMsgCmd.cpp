@@ -37,7 +37,7 @@ void Server::PrivMsgCmd(User &user)
 				bool connected = false;
 				for (std::vector<User>::iterator it2 = chUsers.begin(); it2 != chUsers.end(); ++it2)
 				{
-					if (it2->getNickname() == user.getMessage().getArgs()[0])
+					if (it2->getNickname() == user.getNickname())
 						connected = true;
 				}
 
