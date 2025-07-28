@@ -1,5 +1,10 @@
 #include "../../inc/Server.hpp"
 
+/**
+ * @brief This handles joining channels, checking if the user is allowed and if the channel exists. If it does not exist, it creates a new channel.
+ * 
+ * @param user 
+ */
 void Server::JoinCmd(User &user)
 {
 	std::string response;
@@ -7,6 +12,7 @@ void Server::JoinCmd(User &user)
 	//Server response if user does not input arguments
 	if (user.getMessage().getArgs().size() < 1)
 	{
+		//ERR_NEEDMOREPARAMS
 		response = ":" + user.getHostname() + " 461 " + user.getNickname() + " JOIN :Not enough parameters\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
@@ -16,6 +22,7 @@ void Server::JoinCmd(User &user)
 	//Server response if user inputs a channel without a #
 	if (user.getMessage().getArgs()[0][0] != '#')
 	{
+		//ERR_NOSUCHCHANNEL
 		response = ":" + user.getHostname() + " 403 " + user.getNickname() + " JOIN :No such channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
@@ -42,6 +49,7 @@ void Server::JoinCmd(User &user)
 		if (std::find(this->_channels[user.getMessage().getArgs()[0]].getInvited().begin(), 
 			this->_channels[user.getMessage().getArgs()[0]].getInvited().end(), user) == this->_channels[user.getMessage().getArgs()[0]].getInvited().end())
 		{
+			//ERR_INVITEONLYCHAN
 			response = ":" + user.getHostname() + " 473 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :Cannot join channel (+i)\r\n";
 			send(user.getFd(), response.c_str(), response.size(), 0);
 			std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
@@ -54,6 +62,7 @@ void Server::JoinCmd(User &user)
     	this->_channels[user.getMessage().getArgs()[0]].getMaxUsers() > 0 && 
     	this->_channels[user.getMessage().getArgs()[0]].getUsers().size() == static_cast<size_t>(this->_channels[user.getMessage().getArgs()[0]].getMaxUsers()))
 	{
+		//ERR_CHANNELISFULL
 		response = ":" + user.getHostname() + " 471 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :Cannot join channel (+l)\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
@@ -65,6 +74,7 @@ void Server::JoinCmd(User &user)
 		std::find(this->_channels[user.getMessage().getArgs()[0]].getUsers().begin(), 
 		this->_channels[user.getMessage().getArgs()[0]].getUsers().end(), user) != this->_channels[user.getMessage().getArgs()[0]].getUsers().end())
 	{
+		//ERR_USERONCHANNEL
 		response = ":" + user.getHostname() + " 443 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :You are already in that channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
@@ -76,6 +86,7 @@ void Server::JoinCmd(User &user)
 		!this->_channels[user.getMessage().getArgs()[0]].getPass().empty() && 
 		user.getMessage().getArgs().size() < 2)
 	{
+		//ERR_BADCHANNELKEY
 		response = ":" + user.getHostname() + " 475 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :Cannot join channel (+k)\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
@@ -98,6 +109,7 @@ void Server::JoinCmd(User &user)
 
 	if (!_channels[user.getMessage().getArgs()[0]].getTopic().empty())
 	{
+		//RPL_TOPIC
 		response = ":" + user.getHostname() + " 332 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :" + _channels[user.getMessage().getArgs()[0]].getTopic() + "\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
@@ -120,6 +132,7 @@ void Server::JoinCmd(User &user)
 	}
 	response += "\r\n";
 
+	//RPL_ENDOFNAMES
 	std::string eon = ":" + user.getHostname() + " 366 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :End of NAMES list\r\n";
 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{

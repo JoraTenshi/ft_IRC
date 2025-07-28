@@ -1,10 +1,17 @@
 # include "../../inc/Server.hpp"
 
+/**
+ * @brief This sends messages, either a private message to a user, or a message to a channel. 
+ * 		Makes all the necessary checks to ensure the user is allowed to send the message and if it is a channel, that the user is connected to it and has permissions.
+ *
+ * @param user
+ */
 void Server::PrivMsgCmd(User &user)
 {
 	std::string response = "";
 	if (user.getMessage().getArgs()[0] == "")
 	{
+		//ERR_NORECIPIENT
 		response = ":" + user.getHostname() + " 411 " + user.getNickname() + " :No recipient given PRIVMSG\r\n";
 		send(user.getFd(), response.c_str(), response.length(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " ) - " << response;
@@ -13,6 +20,7 @@ void Server::PrivMsgCmd(User &user)
 
 	if (user.getMessage().getArgs().size() == 1 && user.getMessage().getMsg().empty())
 	{
+		//ERR_NOTEXTTOSEND
 		response = ":" + user.getHostname() + " 412 " + user.getNickname() + " :No text to send\r\n";
 		send(user.getFd(), response.c_str(), response.length(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " ) - " << response;
@@ -26,7 +34,7 @@ void Server::PrivMsgCmd(User &user)
 		response = response + " :" + user.getMessage().getArgs()[1] + "\r\n";
 
 	bool found = false;
-	if (user.getMessage().getArgs()[0][0] == '#') // If it's a channel
+	if (user.getMessage().getArgs()[0][0] == '#')
 	{
 		for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 		{
@@ -43,6 +51,7 @@ void Server::PrivMsgCmd(User &user)
 
 				if (!connected)
 				{
+					//ERR_CANNOTSENDTOCHAN
 					response = ":" + user.getHostname() + " 404 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :Cannot send to channel\r\n";
 					send(user.getFd(), response.c_str(), response.length(), 0);
 					std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " ) - " << response;
@@ -63,6 +72,7 @@ void Server::PrivMsgCmd(User &user)
 
 		if (!found)
 		{
+			//ERR_CANNOTSENDTOCHAN
 			response = ":" + user.getHostname() + " 404 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No such channel\r\n";
 			send(user.getFd(), response.c_str(), response.length(), 0);
 			std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " ) - " << response;
@@ -84,6 +94,7 @@ void Server::PrivMsgCmd(User &user)
 		}
 		if (!found)
 		{
+			//ERR_NOSUCHNICK
 			response = ":" + user.getHostname() + " 401 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No such nick/channel\r\n";
 			send(user.getFd(), response.c_str(), response.length(), 0);
 			std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " ) - " << response;

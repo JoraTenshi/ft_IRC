@@ -1,5 +1,10 @@
 #include "../../inc/Server.hpp"
 
+/**
+ * @brief This handles quitting the server, sending a message to all users in the channels the user is part of.
+ * 
+ * @param user 
+ */
 void Server::QuitCmd(User &user) {
     std::string quitMsg = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " QUIT";
     if (!user.getMessage().getMsg().empty())

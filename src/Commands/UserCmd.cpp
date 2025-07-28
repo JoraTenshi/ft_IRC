@@ -1,12 +1,19 @@
 #include "../../inc/Server.hpp"
 
+/**
+ * @brief This handles the user command, which is used to set the username and real name of the user after they have authenticated with the server.
+ * 
+ * @param user 
+ */
 void Server::UserCmd(User &user)
 {
 	std::string response = "";
 
 	if (user.isAuthenticated())
-	    response = ":" + user.getHostname() + " 462 " + user.getNickname() + " :You may not reregister\r\n";
+	    //ERR_ALREADYREGISTERED
+		response = ":" + user.getHostname() + " 462 " + user.getNickname() + " :You may not reregister\r\n";
 	else if (user.getMessage().getArgs().size() < 3)
+		//ERR_NEEDMOREPARAMS
 		response = ":" + user.getHostname() + " 461 " + user.getNickname() + " USER :Not enough parameters\r\n";
 	else if (!user.getPassword() || user.getNickname() == "")
 		return ;

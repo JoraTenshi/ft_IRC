@@ -1,21 +1,31 @@
 #include "../../inc/Server.hpp"
 
+/**
+ * @brief This handles the mode command for channels, allowing channel operators to set modes like invite-only, topic-protected, and more.
+ * 		It also handles channel operators trying to remove their own operator status.
+ * 
+ * @param user 
+ */
 void Server::ModeCmd(User &user)
 {
 	std::string response = "";
 	bool userInChannel = false;
 	std::string mode = "";
 
+	//Server response if user does not input arguments
 	if (user.getMessage().getArgs().empty() ||user.getMessage().getArgs()[0] == "MODE")
 	{
+		//ERR_NEEDMOREPARAMS
 		response = ":" + user.getHostname() + " 461 " + user.getNickname() + " MODE :Not enough parameters\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 		return;
 	}
 
+	//Server response if channel does not exist
 	if (_channels.find(user.getMessage().getArgs()[0]) == _channels.end())
 	{
+		//ERR_NOSUCHCHANNEL
 		response = ":" + user.getHostname() + " 403 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No such channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
@@ -30,16 +40,20 @@ void Server::ModeCmd(User &user)
 			break;
 		}
 	}
+	//Server response if user is not in channel
 	if (!userInChannel)
 	{
+		//ERR_NOTONCHANNEL
 		response = ":" + user.getHostname() + " 442 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :You're not on that channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 		return;
 	}
 
+	//Server response if user is trying to get channel mode without setting it
 	if (user.getMessage().getArgs().size() == 1 || (user.getMessage().getArgs().size() == 2 && user.getMessage().getArgs()[1].empty()))
 	{
+		//RPL_CHANNELMODEIS
 		response = ":" + user.getHostname() + " 324 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :";
 		if (_channels[user.getMessage().getArgs()[0]].getMode().empty())
 			response += " \r\n";
@@ -50,17 +64,21 @@ void Server::ModeCmd(User &user)
 		return;
 	}
 
+	//Server response if user is not channel operator
 	if (_channels[user.getMessage().getArgs()[0]].getOps().empty() || 
 		std::find(_channels[user.getMessage().getArgs()[0]].getOps().begin(), _channels[user.getMessage().getArgs()[0]].getOps().end(), user) == _channels[user.getMessage().getArgs()[0]].getOps().end())
 	{
+		//ERR_CHANOPRIVSNEEDED
 		response = ":" + user.getHostname() + " 482 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :You're not channel operator\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 		return;
 	}
 
+	//Server response if user tries to set mode without parameters
 	if (user.getMessage().getArgs()[1].size() != 2 || (user.getMessage().getArgs()[1][0] != '+' && user.getMessage().getArgs()[1][0] != '-'))
 	{
+		//RPL_CHANNELMODEIS
 		response = ":" + user.getHostname() + " 324 " + user.getNickname() + " " + user.getMessage().getArgs()[0];
 		if (!_channels[user.getMessage().getArgs()[0]].getMode().empty())
 			response += " :" + _channels[user.getMessage().getArgs()[0]].getMode() + "\r\n";
@@ -98,6 +116,7 @@ void Server::ModeCmd(User &user)
 			_channels[user.getMessage().getArgs()[0]].setMode(mode);
 			if (user.getMessage().getArgs().size() < 3)
 			{
+				//ERR_NEEDMOREPARAMS
 				response = ":" + user.getHostname() + " 461 " + user.getNickname() + " MODE :Not enough parameters\r\n";
 				send(user.getFd(), response.c_str(), response.size(), 0);
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
@@ -110,6 +129,7 @@ void Server::ModeCmd(User &user)
 		{
 			if (user.getMessage().getArgs().size() != 3)
 			{
+				//ERR_NEEDMOREPARAMS
 				response = ":" + user.getHostname() + " 461 " + user.getNickname() + " MODE :Not enough parameters\r\n";
 				send(user.getFd(), response.c_str(), response.size(), 0);
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
@@ -123,7 +143,8 @@ void Server::ModeCmd(User &user)
 			}
 			if (!userInChannel)
 			{
-				response = ":" + user.getHostname() + " 401 " + user.getNickname() + " " + user.getMessage().getArgs()[2] + " " + user.getMessage().getArgs()[0] + " :They aren't on that channel\r\n";
+				//ERR_USERNOTINCHANNEL
+				response = ":" + user.getHostname() + " 401 " + user.getNickname() + " " + user.getMessage().getArgs()[2] + " " + user.getMessage().getArgs()[0] + " :User not in that channel\r\n";
 				send(user.getFd(), response.c_str(), response.size(), 0);
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 				return;
@@ -157,6 +178,7 @@ void Server::ModeCmd(User &user)
 		{
 			if (user.getMessage().getArgs().size() != 3)
 			{
+				//ERR_NEEDMOREPARAMS
 				response = ":" + user.getHostname() + " 461 " + user.getNickname() + " MODE :Not enough parameters\r\n";
 				send(user.getFd(), response.c_str(), response.size(), 0);
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
@@ -214,6 +236,7 @@ void Server::ModeCmd(User &user)
 		{
 			if (user.getMessage().getArgs().size() != 3)
 			{
+				//ERR_NEEDMOREPARAMS
 				response = ":" + user.getHostname() + " 461 " + user.getNickname() + " MODE :Not enough parameters\r\n";
 				send(user.getFd(), response.c_str(), response.size(), 0);
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
@@ -230,6 +253,7 @@ void Server::ModeCmd(User &user)
 			}
 			if (!userInChannel)
 			{
+				//ERR_USERNOTINCHANNEL
 				response = ":" + user.getHostname() + " 401 " + user.getNickname() + " " + user.getMessage().getArgs()[2] + " " + user.getMessage().getArgs()[0] + " :User is not in channel\r\n";
 				send(user.getFd(), response.c_str(), response.size(), 0);
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
@@ -265,6 +289,7 @@ void Server::ModeCmd(User &user)
 		}
 		else
 		{
+			//RPL_CHANNELMODEIS
 			response = ":" + user.getHostname() + " 324 " + user.getNickname() + " " + user.getMessage().getArgs()[0];
 			if (!_channels[user.getMessage().getArgs()[0]].getMode().empty())
 				response += " :" + _channels[user.getMessage().getArgs()[0]].getMode() + "\r\n";

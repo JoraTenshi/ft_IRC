@@ -1,5 +1,10 @@
 #include "../../inc/Server.hpp"
 
+/**
+ * @brief This handles parting a channel, checking if the user is connected to the channel and removing them from it.
+ * 
+ * @param user 
+ */
 void Server::PartCmd(User &user)
 {
 	std::string response;
@@ -7,6 +12,7 @@ void Server::PartCmd(User &user)
 
 	if (user.getMessage().getArgs().size() < 1)
 	{
+		//ERR_NEEDMOREPARAMS
 		response = ":" + user.getHostname() + "461 " + user.getNickname() + " PART :Not enough parameters\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
@@ -15,6 +21,7 @@ void Server::PartCmd(User &user)
 
 	if (_channels.find(user.getMessage().getArgs()[0]) == _channels.end())
 	{
+		//ERR_NOSUCHCHANNEL
 		response = "!" + user.getHostname() + "403 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No such channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
@@ -34,6 +41,7 @@ void Server::PartCmd(User &user)
 
 	if (!found)
 	{
+		//ERR_NOTONCHANNEL
 		response = ":" + user.getHostname() + "442 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :You're not on that channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
