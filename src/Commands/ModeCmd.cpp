@@ -6,9 +6,9 @@ void Server::ModeCmd(User &user)
 	bool userInChannel = false;
 	std::string mode = "";
 
-	if (user.getMessage().getArgs()[0] == "MODE")
+	if (user.getMessage().getArgs().empty() ||user.getMessage().getArgs()[0] == "MODE")
 	{
-		response == ":" + user.getHostname() + " 461 " + user.getNickname() + " MODE :Not enough parameters\r\n";
+		response = ":" + user.getHostname() + " 461 " + user.getNickname() + " MODE :Not enough parameters\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 		return;
@@ -80,7 +80,7 @@ void Server::ModeCmd(User &user)
 			if (mode.find('i') != std::string::npos)
 				mode.erase(mode.find('i'), 1);
 			_channels[user.getMessage().getArgs()[0]].setMode(mode);
-			response == ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +i\r\n";
+			response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +i\r\n";
 		}
 		else if (mode == "t")
 		{

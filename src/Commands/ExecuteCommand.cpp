@@ -30,8 +30,12 @@ void Server::executeCommand(User &user)
 		PrivMsgCmd(user);
 	else if (user.getMessage().getCmd() == "PING")
 		PingCmd(user);
-/* 	else if (user.getMessage().getCmd() == "MODE")
-		ModeCmd(user); */
+ 	else if (user.getMessage().getCmd() == "MODE")
+		ModeCmd(user);
 	else if (user.getMessage().getCmd() == "QUIT")
 		QuitCmd(user);
+	else if (user.getMessage().getCmd() == "TOPIC")
+		TopicCmd(user);
+	else if (user.getMessage().getCmd() == "INVITE")
+		InviteCmd(user);
 }
