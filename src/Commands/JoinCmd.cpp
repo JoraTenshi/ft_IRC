@@ -36,9 +36,19 @@ void Server::JoinCmd(User &user)
 		newChannel.getUsers().push_back(user);
 		newChannel.getOps().push_back(user);
 		_channels[user.getMessage().getArgs()[0]] = newChannel;
+		
 		response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " JOIN " + user.getMessage().getArgs()[0] + "\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
+		
+		response = ":" + user.getHostname() + " 353 " + user.getNickname() + " = " + user.getMessage().getArgs()[0] + " :@" + user.getNickname() + "\r\n";
+    	send(user.getFd(), response.c_str(), response.size(), 0);
+    	std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
+
+    	response = ":" + user.getHostname() + " 366 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :End of /NAMES list\r\n";
+    	send(user.getFd(), response.c_str(), response.size(), 0);
+    	std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
+		
 		return;
 	}
 
@@ -96,15 +106,16 @@ void Server::JoinCmd(User &user)
 	//Server response if user provided a channel, that channel exists and all above conditions are met
 	_channels[user.getMessage().getArgs()[0]].getUsers().push_back(user);
 	std::vector<User> users = _channels[user.getMessage().getArgs()[0]].getUsers();
+	std::vector<User> ops = _channels[user.getMessage().getArgs()[0]].getOps();
 
 	response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " JOIN " + user.getMessage().getArgs()[0] + "\r\n";
 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{
-		if (it->getFd() != user.getFd())
-		{
+/* 		if (it->getFd() != user.getFd())
+		{ */
 			send(it->getFd(), response.c_str(), response.size(), 0);
 			std::cout << "[ SERVER ] Message sent to client: " << it->getFd() << "( " << it->getHostname() << " ) - " << response;
-		}
+//		}
 	}
 
 	if (!_channels[user.getMessage().getArgs()[0]].getTopic().empty())
@@ -114,31 +125,37 @@ void Server::JoinCmd(User &user)
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
 	}
-	response = ":" + user.getHostname() + " 353 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :NAMES list:";
+	response = ":" + user.getHostname() + " 353 " + user.getNickname() + " = " + user.getMessage().getArgs()[0] + " :";
 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{
-		if (it == users.begin())
-		{
-			if (it->getNickname() == user.getMessage().getArgs()[0])
-				response += "@" + it->getNickname();
-			else
-				response += " " + it->getNickname();
-			continue;
+		bool	isOp = false;
+		for (std::vector<User>::iterator opIt = ops.begin(); opIt != ops.end(); ++opIt) {
+			if (opIt->getNickname() == it->getNickname()) {
+				isOp = true;
+				break;
+			}
 		}
-		if (it->getNickname() == user.getMessage().getArgs()[0])
-			response += " @" + it->getNickname();
+
+		if (it != users.begin())
+			response += " ";
+		if (isOp)
+			response += "@" + it->getNickname();
 		else
-			response += " " + it->getNickname();
+			response += it->getNickname();
 	}
 	response += "\r\n";
 
+	send(user.getFd(), response.c_str(), response.size(), 0);
+	std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
 	//RPL_ENDOFNAMES
-	std::string eon = ":" + user.getHostname() + " 366 " + user.getNickname() + " JOIN " + user.getMessage().getArgs()[0] + " :End of NAMES list\r\n";
-	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
+	std::string eon = ":" + user.getHostname() + " 366 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :End of /NAMES list\r\n";
+	send(user.getFd(), eon.c_str(), eon.size(), 0);
+	std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << eon;
+/* 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{
 		send(it->getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << it->getFd() << "( " << it->getHostname() << " ) - " << response;
 		send(it->getFd(), eon.c_str(), eon.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << it->getFd() << "( " << it->getHostname() << " ) - " << eon;
-	}
+	} */
 }

@@ -38,4 +38,6 @@ void Server::executeCommand(User &user)
 		TopicCmd(user);
 	else if (user.getMessage().getCmd() == "INVITE")
 		InviteCmd(user);
+	else if (user.getMessage().getCmd() == "WHO")
+		WhoCmd(user);
 }

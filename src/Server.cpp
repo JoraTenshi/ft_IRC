@@ -16,9 +16,8 @@ void    Server::stop(void) {
     if (_serverSocket != -1) {
         close(_serverSocket);
         _serverSocket = -1;
+        std::cout << "Server stopped." << std::endl;
     }
-
-    std::cout << "Server stopped." << std::endl;
 }
 
 void    Server::setupServerSocket(void) {
