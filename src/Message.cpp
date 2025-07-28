@@ -42,10 +42,13 @@ void	Message::clear()
 		_input = _input.substr(pos + 2);
 	else
 		_input.clear();
-		
-	_cmd.clear();
-	_args.clear();
-	_msg.clear();
+	
+    if (!_cmd.empty())
+	    _cmd.clear();
+    if (!_args.empty())
+		_args.clear();
+    if (!_msg.empty())
+	    _msg.clear();
 }
 
 /* void Message::parseInput(void)

@@ -87,7 +87,7 @@ void    Server::runMainLoop(void) {
     if (g_signal == SIGINT) {
         std::cout << "\nShutting down server..." << std::endl;
         stop();
-        exit(0);
+        //exit(0);
     }
 }
 
@@ -136,15 +136,23 @@ void    Server::checkUpdate(User &user) {
     if (bytes < 0)
         exit(-1);
     if (bytes == 0)
+    {
         disconnectUser(user);
+        return ;
+    }
     if (bytes > 0) {
         std::cout << "Received " << bytes << " bytes from user with fd: " << user.getFd() << std::endl;
         std::string message(buffer);
         user.getMessage().setInput(user.getMessage().getInput() + message);
 
+        /* if (user.getMessage().getInput().empty())
+            return; */
+        int aux = user.getFd();
         while (user.getMessage().checkCmdEnd()) {
             user.getMessage().parseInput();
             executeCommand(user);
+            if (_users.find(aux) == _users.end())
+                return;
             user.getMessage().clear();
         }
 /*         if (user.getMessage().checkCmdEnd() == false) {
