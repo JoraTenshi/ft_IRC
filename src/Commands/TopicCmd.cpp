@@ -8,6 +8,7 @@
 void Server::TopicCmd(User &user)
 {
     std::string response = "";
+	bool userInChannel = false;
 
 	if (user.getMessage().getArgs().empty() || user.getMessage().getArgs()[0] == "TOPIC")
 	{
@@ -18,22 +19,28 @@ void Server::TopicCmd(User &user)
 		return;
 	}
 
-	for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	if (_channels.find(_channels[user.getMessage().getArgs()[0]].getName()) == _channels.end())
 	{
-		if (it->first == _channels[user.getMessage().getArgs()[0]].getName())
+		//ERR_NOSUCHCHANNEL
+		response = ":" + user.getHostname() + " 403 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[0]].getName() + " :No such channel\r\n";
+		send(user.getFd(), response.c_str(), response.size(), 0);
+		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " + user.getHostname() + " )" << std::endl;
+		return;
+	}
+
+	for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getUsers().begin(); it != _channels[user.getMessage().getArgs()[0]].getUsers().end(); it++)
+	{
+		if (*it == user)
 		{
-			//ERR_NOSUCHCHANNEL
-			response = ":" + user.getHostname() + " 403 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[0]].getName() + " :No topic is set\r\n";
-			send(user.getFd(), response.c_str(), response.size(), 0);
-			std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " + user.getHostname() + " )" << std::endl;
-			return;
+			userInChannel = true;
+			break;
 		}
 	}
 
-	if (_channels.find(_channels[user.getMessage().getArgs()[0]].getName()) == _channels.end())
+	if (!userInChannel)
 	{
 		//ERR_NOTONCHANNEL
-		response = ":" + user.getHostname() + " 442 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[0]].getName() + " :No such channel\r\n";
+		response = ":" + user.getHostname() + " 442 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[0]].getName() + " :You're not on that channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " + user.getHostname() + " )" << std::endl;
 		return;

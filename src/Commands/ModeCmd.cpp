@@ -95,25 +95,21 @@ void Server::ModeCmd(User &user)
 		if (mode == "i")
 		{
 			mode = _channels[user.getMessage().getArgs()[0]].getMode();
-			if (mode.find('i') != std::string::npos)
-				mode.erase(mode.find('i'), 1);
+			if (mode.find('i') == std::string::npos)
+				mode += 'i';
 			_channels[user.getMessage().getArgs()[0]].setMode(mode);
 			response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +i\r\n";
 		}
 		else if (mode == "t")
 		{
 			mode = _channels[user.getMessage().getArgs()[0]].getMode();
-			if (mode.find('t') != std::string::npos)
-				mode.erase(mode.find('t'), 1);
+			if (mode.find('t') == std::string::npos)
+				mode += 't';
 			_channels[user.getMessage().getArgs()[0]].setMode(mode);
 			response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +t\r\n";
 		}
 		else if (mode == "k")
 		{
-			mode = _channels[user.getMessage().getArgs()[0]].getMode();
-			if (mode.find('k') != std::string::npos)
-				mode.erase(mode.find('k'), 1);
-			_channels[user.getMessage().getArgs()[0]].setMode(mode);
 			if (user.getMessage().getArgs().size() < 3)
 			{
 				//ERR_NEEDMOREPARAMS
@@ -122,6 +118,10 @@ void Server::ModeCmd(User &user)
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 				return;
 			}
+			mode = _channels[user.getMessage().getArgs()[0]].getMode();
+			if (mode.find('k') == std::string::npos)
+				mode += 'k';
+			_channels[user.getMessage().getArgs()[0]].setMode(mode);
 			_channels[user.getMessage().getArgs()[0]].setPass(user.getMessage().getArgs()[2]);
 			response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +k\r\n";
 		}
@@ -197,9 +197,9 @@ void Server::ModeCmd(User &user)
 			else
 			{
 				mode = _channels[user.getMessage().getArgs()[0]].getMode();
-				if (mode.find('l') != std::string::npos)
-					mode.erase(mode.find('l'), 1);
-				_channels[user.getMessage().getArgs()[0]].setMode(mode + "l");
+				if (mode.find('l') == std::string::npos)
+					mode += 'l';
+				_channels[user.getMessage().getArgs()[0]].setMode(mode);
 				_channels[user.getMessage().getArgs()[0]].setMaxUsers(maxUsers);
 				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +l " + user.getMessage().getArgs()[2] + "\r\n";
 			}
@@ -299,6 +299,18 @@ void Server::ModeCmd(User &user)
 			std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 			return;
 		}
+	}
+	else
+	{
+		//RPL_CHANNELMODEIS
+		response = ":" + user.getHostname() + " 324 " + user.getNickname() + " " + user.getMessage().getArgs()[0];
+		if (!_channels[user.getMessage().getArgs()[0]].getMode().empty())
+			response += " +" + _channels[user.getMessage().getArgs()[0]].getMode() + "\r\n";
+		else
+			response += "\r\n";
+		send(user.getFd(), response.c_str(), response.size(), 0);
+		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
+		return;
 	}
 	std::vector<User> chUsers = _channels[user.getMessage().getArgs()[0]].getUsers();
 	for (std::vector<User>::iterator it = chUsers.begin(); it != chUsers.end(); it++)
