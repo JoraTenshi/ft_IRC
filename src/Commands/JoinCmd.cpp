@@ -48,6 +48,10 @@ void Server::JoinCmd(User &user)
     	response = ":" + user.getHostname() + " 366 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :End of /NAMES list\r\n";
     	send(user.getFd(), response.c_str(), response.size(), 0);
     	std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
+
+		response = ":" + user.getHostname() + " 332 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No topic is set\r\n";
+		send(user.getFd(), response.c_str(), response.size(), 0);
+		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
 		
 		return;
 	}
@@ -125,6 +129,13 @@ void Server::JoinCmd(User &user)
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
 	}
+	else
+	{
+		response = ":" + user.getHostname() + " 332 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No topic is set\r\n";
+		send(user.getFd(), response.c_str(), response.size(), 0);
+		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
+	}
+
 	response = ":" + user.getHostname() + " 353 " + user.getNickname() + " = " + user.getMessage().getArgs()[0] + " :";
 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{
@@ -151,7 +162,7 @@ void Server::JoinCmd(User &user)
 	std::string eon = ":" + user.getHostname() + " 366 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :End of /NAMES list\r\n";
 	send(user.getFd(), eon.c_str(), eon.size(), 0);
 	std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << eon;
-/* 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
+	/*for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
 	{
 		send(it->getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << it->getFd() << "( " << it->getHostname() << " ) - " << response;

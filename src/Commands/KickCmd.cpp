@@ -91,7 +91,10 @@ void Server::KickCmd(User &user)
 	_channels[user.getMessage().getArgs()[0]].rmOps(_channels[user.getMessage().getArgs()[0]].getUsers()[kickedIndex]);
 	_channels[user.getMessage().getArgs()[0]].rmUser(_channels[user.getMessage().getArgs()[0]].getUsers()[kickedIndex]);
 	if (_channels[user.getMessage().getArgs()[0]].getUsers().empty())
+	{
 		_channels.erase(user.getMessage().getArgs()[0]);
+		return;
+	}
 	else if (_channels[user.getMessage().getArgs()[0]].getOps().size() == 0)
 	{
 		_channels[user.getMessage().getArgs()[0]].getOps().push_back(_channels[user.getMessage().getArgs()[0]].getUsers()[0]);
