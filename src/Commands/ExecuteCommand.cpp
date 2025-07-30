@@ -40,4 +40,6 @@ void Server::executeCommand(User &user)
 		InviteCmd(user);
 	else if (user.getMessage().getCmd() == "WHO")
 		WhoCmd(user);
+	else if (user.getMessage().getCmd() == "KICK")
+		KickCmd(user);
 }

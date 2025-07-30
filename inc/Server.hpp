@@ -59,6 +59,7 @@ class Server {
         void    InviteCmd(User &user);
         void    QuitCmd(User &user);
         void    WhoCmd(User &user);
+        void    KickCmd(User &user);
 };
 
 #endif
