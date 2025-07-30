@@ -52,13 +52,18 @@ void	Channel::rmOps(User &user) {
 
 void	Channel::updateOps(User &user) {
 	std::vector<User>::iterator opIt = std::find(_ops.begin(), _ops.end(), user);
+	std::string response = "";
+
 	if (opIt != _ops.end())
 		rmOps(user);
 	if (_ops.empty() && !_users.empty()) {
 		for (std::vector<User>::iterator it = _users.begin(); it != _users.end(); ++it) {
             if (it->getFd() != user.getFd()) {
                 _ops.push_back(*it);
-                std::cout << "Auto-promoted user " << it->getFd() << " to operator in channel " << _name << std::endl;
+				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + _name + " +o "
+                + getOps()[0].getNickname() + "\r\n";
+                send(it->getFd(), response.c_str(), response.size(), 0);
+                std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " )" << response;
                 break;
             }
         }

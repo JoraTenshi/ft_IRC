@@ -26,25 +26,19 @@ void Server::QuitCmd(User &user) {
                 std::cout << " [ SERVER ] Message sent to client " << userIt->getFd() << "( " << userIt->getHostname() << " )" << quitMsg;
             }
         }
-        channel->rmOps(user);
-        channel->rmUser(user);
-        if (channel->getUsers().empty()) {
-            _channels.erase(channel->getName());
-            continue;
-        }
-        else if (channel->getOps().size() == 0) {
+        /* if (channel->getOps().size() == 0) {
             channel->getOps().push_back(channel->getUsers()[0]);
             std::vector<User> chOps = channel->getOps();
             chOps.push_back(channel->getUsers()[0]);
             channel->setOps(chOps);
             for (std::vector<User>::iterator it = channel->getUsers().begin(); it != channel->getUsers().end(); ++it) {
                 response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + channel->getName() + " +o "
-                        + channel->getUsers()[0].getNickname() + "\r\n";
+                + channel->getUsers()[0].getNickname() + "\r\n";
                 send(it->getFd(), response.c_str(), response.size(), 0);
                 std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " )" << response;
             }
-        }
+        } */
     }
-
+    
     disconnectUser(user);
 }
