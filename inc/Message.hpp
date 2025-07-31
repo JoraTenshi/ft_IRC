@@ -31,6 +31,7 @@ class Message
 		std::string getMsg(void) const;
 		std::string getCmd(void) const;
 		std::vector<std::string> getArgs(void) const;
+		std::string getArg(size_t index) const;
 
 		void	setInput(std::string input);
 

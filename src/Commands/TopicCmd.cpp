@@ -65,7 +65,7 @@ void Server::TopicCmd(User &user)
 		return ;
 	}
 
-	if (_channels[user.getMessage().getArgs()[0]].getMode().find('t') != std::string::npos ||
+	if (_channels[user.getMessage().getArgs()[0]].getMode().find('t') != std::string::npos &&
 		std::find(_channels[user.getMessage().getArgs()[0]].getOps().begin(), _channels[user.getMessage().getArgs()[0]].getOps().end(), user) == _channels[user.getMessage().getArgs()[0]].getOps().end())
 	{
 		//ERR_CHANOPRIVSNEEDED

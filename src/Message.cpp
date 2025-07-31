@@ -26,6 +26,13 @@ std::string Message::getCmd(void) const {return _cmd;}
 
 std::vector<std::string> Message::getArgs(void) const {return _args;}
 
+std::string Message::getArg(size_t index) const 
+{
+    if (index < _args.size())
+        return _args[index];
+    return "";
+}
+
 void	Message::setInput(std::string input) { _input = input; }
 
 bool Message::checkCmdEnd(void) 

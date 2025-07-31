@@ -20,7 +20,7 @@ void Server::InviteCmd(User &user)
     }
 
     //Server response if user already in channel
-    for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getUsers().begin(); it != _channels[user.getMessage().getArgs()[0]].getUsers().end(); it++)
+    for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[1]].getUsers().begin(); it != _channels[user.getMessage().getArgs()[1]].getUsers().end(); it++)
     {
         if (it->getNickname() == user.getMessage().getArgs()[0])
         {
@@ -33,7 +33,7 @@ void Server::InviteCmd(User &user)
     }
 
     //Server response if that channel does not exist
-    if (_channels.find(user.getMessage().getArgs()[0]) == _channels.end())
+    if (_channels.find(user.getMessage().getArgs()[1]) == _channels.end())
     {
         //ERR_NOSUCHCHANNEL
         response = ":" + user.getHostname() + " 403 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No such channel\r\n";
@@ -43,36 +43,39 @@ void Server::InviteCmd(User &user)
     }
 
     //Server response if user is not an operator of the channel
-    if (std::find(_channels[user.getMessage().getArgs()[0]].getOps().begin(), _channels[user.getMessage().getArgs()[0]].getOps().end(),
-        user) == _channels[user.getMessage().getArgs()[0]].getOps().end())
+    if (std::find(_channels[user.getMessage().getArgs()[1]].getOps().begin(), _channels[user.getMessage().getArgs()[1]].getOps().end(),
+        user) == _channels[user.getMessage().getArgs()[1]].getOps().end())
     {
         //ERR_CHANOPRIVSNEEDED
-        response = ":" + user.getHostname() + " 482 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[0]].getName() + " :You're not channel operator\r\n";
+        response = ":" + user.getHostname() + " 482 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[1]].getName() + " :You're not channel operator\r\n";
         send(user.getFd(), response.c_str(), response.size(), 0);
         std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " + user.getHostname() + " )" << std::endl;
         return;
     }
 
     //Server response if user is already in the channel
-    if (std::find(_channels[user.getMessage().getArgs()[0]].getUsers().begin(), _channels[user.getMessage().getArgs()[0]].getUsers().end(),
-        user) != _channels[user.getMessage().getArgs()[0]].getUsers().end())
+    if (std::find(_channels[user.getMessage().getArgs()[1]].getUsers().begin(), _channels[user.getMessage().getArgs()[1]].getUsers().end(),
+        user) == _channels[user.getMessage().getArgs()[1]].getUsers().end())
     {
         //ERR_USERONCHANNEL
-        response = ":" + user.getHostname() + " 443 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[0]].getName() + " :User already in channel\r\n";
+        response = ":" + user.getHostname() + " 443 " + user.getNickname() + " " + _channels[user.getMessage().getArgs()[1]].getName() + " :User already in channel\r\n";
         send(user.getFd(), response.c_str(), response.size(), 0);
         std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " + user.getHostname() + " )" << std::endl;
         return;
     }
 
     //RPL_INVITING
-    response = ":" + user.getHostname() + " 341 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " " + _channels[user.getMessage().getArgs()[0]].getName() + "\r\n";
+    response = ":" + user.getHostname() + " 341 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " " + _channels[user.getMessage().getArgs()[1]].getName() + "\r\n";
     send(user.getFd(), response.c_str(), response.size(), 0);
     std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " + user.getHostname() + " )" << std::endl;
     for (std::map<int, User>::iterator it = _users.begin(); it != _users.end(); it++)
     {
        if (it->second.getNickname() == user.getMessage().getArgs()[0])
         {
-            std::string inviteResponse = ":" + user.getHostname() + " INVITE " + user.getMessage().getArgs()[0] + " :" + _channels[user.getMessage().getArgs()[0]].getName() + "\r\n";
+            std::vector<User> invitedUsers = _channels[user.getMessage().getArgs()[1]].getInvited();
+            invitedUsers.push_back(it->second);
+            _channels[user.getMessage().getArgs()[1]].setInvited(invitedUsers);
+            std::string inviteResponse = ":" + user.getHostname() + " INVITE " + user.getMessage().getArgs()[0] + " :" + _channels[user.getMessage().getArgs()[1]].getName() + "\r\n";
             send(it->second.getFd(), inviteResponse.c_str(), inviteResponse.size(), 0);
             std::cout << "[ SERVER ] Invite message sent to client " << it->second.getFd() << "( " + it->second.getHostname() + " )" << std::endl;
             return;

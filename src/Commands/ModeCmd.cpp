@@ -123,7 +123,7 @@ void Server::ModeCmd(User &user)
 				mode += 'k';
 			_channels[user.getMessage().getArgs()[0]].setMode(mode);
 			_channels[user.getMessage().getArgs()[0]].setPass(user.getMessage().getArgs()[2]);
-			response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +k\r\n";
+			response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +k " + user.getMessage().getArgs()[2] + "\r\n";
 		}
 		else if (mode == "o")
 		{
@@ -135,13 +135,18 @@ void Server::ModeCmd(User &user)
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 				return;
 			}
-			userInChannel = false;
-			for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getUsers().begin(); it != _channels[user.getMessage().getArgs()[0]].getUsers().end(); it++)
+
+			User *targetUser = NULL;
+			for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getUsers().begin();
+				it != _channels[user.getMessage().getArgs()[0]].getUsers().end(); ++it)
 			{
 				if (it->getNickname() == user.getMessage().getArgs()[2])
-					userInChannel = true;
+				{
+					targetUser = &(*it);
+					break;
+				}
 			}
-			if (!userInChannel)
+			if (!targetUser)
 			{
 				//ERR_USERNOTINCHANNEL
 				response = ":" + user.getHostname() + " 401 " + user.getNickname() + " " + user.getMessage().getArgs()[2] + " " + user.getMessage().getArgs()[0] + " :User not in that channel\r\n";
@@ -149,30 +154,30 @@ void Server::ModeCmd(User &user)
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 				return;
 			}
-
-			int newOp = 0;
-			for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getOps().begin(); it != _channels[user.getMessage().getArgs()[0]].getOps().end(); it++)
+			std::vector<User>& chOps = _channels[user.getMessage().getArgs()[0]].getOps();
+			bool alreadyOp = false;
+			for (std::vector<User>::iterator it = chOps.begin(); it != chOps.end(); ++it)
 			{
-				if (it->getNickname() == user.getMessage().getArgs()[2])
-					newOp = 1;
+				if (it->getNickname() == targetUser->getNickname())
+				{
+					alreadyOp = true;
+					break;
+				}
 			}
-			if (!newOp)
+			if (!alreadyOp)
 			{
-				std::cout << "User could not be given operator status" << std::endl;
-				return ;
+				chOps.push_back(*targetUser);
+				_channels[user.getMessage().getArgs()[0]].setOps(chOps);
 			}
-
 			std::vector<User> chUsers = _channels[user.getMessage().getArgs()[0]].getUsers();
-			std::vector<User> chOps = _channels[user.getMessage().getArgs()[0]].getOps();
-			chOps.push_back(user);
-			_channels[user.getMessage().getArgs()[0]].setOps(chOps);
-			for (std::vector<User>::iterator it = chUsers.begin(); it != chUsers.end(); it++)
+			for (std::vector<User>::iterator it = chUsers.begin(); it != chUsers.end(); ++it)
 			{
-				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +o " + user.getMessage().getArgs()[2] + "\r\n";
+				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() +
+					" MODE " + user.getMessage().getArgs()[0] + " +o " + targetUser->getNickname() + "\r\n";
 				send(it->getFd(), response.c_str(), response.size(), 0);
 				std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " )" << response;
 			}
-			return ;
+			return;
 		}
 		else if (mode == "l")
 		{
@@ -259,23 +264,36 @@ void Server::ModeCmd(User &user)
 				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 				return;
 			}
+
+			int removedIndex = -1;
+
 			for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getOps().begin(); it != _channels[user.getMessage().getArgs()[0]].getOps().end(); it++)
 			{
-				if (*it == user)
+				if (it->getNickname() == user.getMessage().getArgs()[2])
 				{
-					if (_channels[user.getMessage().getArgs()[0]].getOps().size() == 1)
-					{
-						_channels[user.getMessage().getArgs()[0]].getOps().push_back(_channels[user.getMessage().getArgs()[0]].getUsers()[0]);
-						response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +o " + _channels[user.getMessage().getArgs()[0]].getUsers()[0].getNickname() + "\r\n";
-						send(user.getFd(), response.c_str(), response.size(), 0);
-						std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
-					}
-					_channels[user.getMessage().getArgs()[0]].rmOps(*it);
-					response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " -o " + user.getMessage().getArgs()[2] + "\r\n";
-					send(it->getFd(), response.c_str(), response.size(), 0);
-					std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " )" << response;
-					return;
+					removedIndex = it - _channels[user.getMessage().getArgs()[0]].getOps().begin();
+					break;
 				}
+			}
+
+			if (removedIndex != -1)
+			{
+				_channels[user.getMessage().getArgs()[0]].rmOps(_channels[user.getMessage().getArgs()[0]].getOps()[removedIndex]);
+				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " -o " + user.getMessage().getArgs()[2] + "\r\n";
+			}
+
+			if (_channels[user.getMessage().getArgs()[0]].getOps().size() == 0)
+			{
+				send(user.getFd(), response.c_str(), response.size(), 0);
+				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
+				_channels[user.getMessage().getArgs()[0]].getOps().push_back(_channels[user.getMessage().getArgs()[0]].getUsers()[0]);
+				std::vector<User> chOps = _channels[user.getMessage().getArgs()[0]].getOps();
+				chOps.push_back(_channels[user.getMessage().getArgs()[0]].getUsers()[0]);
+				_channels[user.getMessage().getArgs()[0]].setOps(chOps);
+				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +o " + _channels[user.getMessage().getArgs()[0]].getUsers()[0].getNickname() + "\r\n";
+				send(user.getFd(), response.c_str(), response.size(), 0);
+				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
+				return;
 			}
 		}
 		else if (mode == "l")
@@ -315,7 +333,10 @@ void Server::ModeCmd(User &user)
 	std::vector<User> chUsers = _channels[user.getMessage().getArgs()[0]].getUsers();
 	for (std::vector<User>::iterator it = chUsers.begin(); it != chUsers.end(); it++)
 	{
-		response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " " + user.getMessage().getArgs()[1] + "\r\n";
+		response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " " + user.getMessage().getArgs()[1];
+		if (user.getMessage().getArgs().size() > 2)
+			response += " " + user.getMessage().getArgs()[2];
+		response += "\r\n";
 		send(it->getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " )" << response;
 	}
