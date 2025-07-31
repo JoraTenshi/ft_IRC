@@ -1,7 +1,5 @@
 #include "../../inc/Server.hpp"
 
-//hay que revisar esto esta hecho a priori por copilot
-
 void Server::WhoCmd(User &user)
 {
     std::string response;
@@ -17,12 +15,11 @@ void Server::WhoCmd(User &user)
 
     std::string target = user.getMessage().getArgs()[0];
     
-    // Si es un canal (empieza con #)
     if (target[0] == '#')
     {
         if (_channels.find(target) == _channels.end())
         {
-            // Canal no existe
+            //ERR_NOSUCHCHANNEL
             response = ":" + user.getHostname() + " 315 " + user.getNickname() + " " + target + " :End of /WHO list\r\n";
             send(user.getFd(), response.c_str(), response.size(), 0);
             std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
@@ -32,7 +29,6 @@ void Server::WhoCmd(User &user)
         std::vector<User> users = _channels[target].getUsers();
         std::vector<User> ops = _channels[target].getOps();
 
-        // Enviar RPL_WHOREPLY (352) para cada usuario del canal
         for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it)
         {
             bool isOp = false;
@@ -45,7 +41,7 @@ void Server::WhoCmd(User &user)
                 }
             }
 
-            // RPL_WHOREPLY: 352 nick channel username hostname server nickname flags :hopcount realname
+            // RPL_WHOREPLY
             response = ":" + user.getHostname() + " 352 " + user.getNickname() + " " + target + " " + 
                       it->getUsername() + " " + it->getHostname() + " " + user.getHostname() + " " + 
                       it->getNickname() + " H" + (isOp ? "@" : "") + " :0 " + it->getRealname() + "\r\n";
@@ -56,7 +52,6 @@ void Server::WhoCmd(User &user)
     }
     else
     {
-        // WHO para un usuario específico
         bool found = false;
         for (std::map<int, User>::iterator it = _users.begin(); it != _users.end(); ++it)
         {
@@ -74,7 +69,7 @@ void Server::WhoCmd(User &user)
         }
     }
 
-    // RPL_ENDOFWHO (315) - Fin de la lista WHO
+    // RPL_ENDOFWHO
     response = ":" + user.getHostname() + " 315 " + user.getNickname() + " " + target + " :End of /WHO list\r\n";
     send(user.getFd(), response.c_str(), response.size(), 0);
     std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
