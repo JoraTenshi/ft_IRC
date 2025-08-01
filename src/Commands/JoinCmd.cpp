@@ -19,7 +19,7 @@ void Server::JoinCmd(User &user)
 		return;
 	}
 
-	//Server response if user inputs a channel without a #
+	//Server response if user inputs a channel without a # or the channel name is only a #
 	if (user.getMessage().getArgs()[0][0] != '#' || !user.getMessage().getArgs()[0][1])
 	{
 		//ERR_NOSUCHCHANNEL
@@ -105,6 +105,18 @@ void Server::JoinCmd(User &user)
 		send(user.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "[ SERVER ] Message sent to client: " << user.getFd() << "( " << user.getHostname() << " ) - " << response;
 		return;
+	}
+
+	//Server response if channel has a password and user provided it, but it is incorrect
+	if (_channels[user.getMessage().getArgs()[0]].getMode().find('k') != std::string::npos)
+	{
+		if (user.getMessage().getArgs().size() < 2 || user.getMessage().getArgs()[1] != _channels[user.getMessage().getArgs()[0]].getPass())
+		{
+			// ERR_BADCHANNELKEY
+			std::string response = ":" + user.getHostname() + " 475 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :Wrong password provided (+k)\r\n";
+			send(user.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
 	}
 
 	//Server response if user provided a channel, that channel exists and all above conditions are met

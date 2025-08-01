@@ -280,21 +280,29 @@ void Server::ModeCmd(User &user)
 			{
 				_channels[user.getMessage().getArgs()[0]].rmOps(_channels[user.getMessage().getArgs()[0]].getOps()[removedIndex]);
 				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " -o " + user.getMessage().getArgs()[2] + "\r\n";
+				std::vector<User> chUsers = _channels[user.getMessage().getArgs()[0]].getUsers();
+				for (std::vector<User>::iterator it = chUsers.begin(); it != chUsers.end(); ++it)
+				{
+					send(it->getFd(), response.c_str(), response.size(), 0);
+					std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " )" << response;
+				}
 			}
 
 			if (_channels[user.getMessage().getArgs()[0]].getOps().size() == 0)
 			{
-				send(user.getFd(), response.c_str(), response.size(), 0);
-				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
 				_channels[user.getMessage().getArgs()[0]].getOps().push_back(_channels[user.getMessage().getArgs()[0]].getUsers()[0]);
 				std::vector<User> chOps = _channels[user.getMessage().getArgs()[0]].getOps();
 				chOps.push_back(_channels[user.getMessage().getArgs()[0]].getUsers()[0]);
 				_channels[user.getMessage().getArgs()[0]].setOps(chOps);
 				response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " MODE " + user.getMessage().getArgs()[0] + " +o " + _channels[user.getMessage().getArgs()[0]].getUsers()[0].getNickname() + "\r\n";
-				send(user.getFd(), response.c_str(), response.size(), 0);
-				std::cout << "[ SERVER ] Message sent to client " << user.getFd() << " ( " << user.getHostname() << " )" << response;
+				for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getUsers().begin(); it != _channels[user.getMessage().getArgs()[0]].getUsers().end(); it++)
+				{
+					send(it->getFd(), response.c_str(), response.size(), 0);
+					std::cout << "[ SERVER ] Message sent to client " << it->getFd() << " ( " << it->getHostname() << " )" << response;
+				}
 				return;
 			}
+			return;
 		}
 		else if (mode == "l")
 		{
