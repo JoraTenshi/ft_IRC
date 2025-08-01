@@ -23,7 +23,7 @@ void Server::QuitCmd(User &user) {
         for (std::vector<User>::iterator userIt = chUsers.begin(); userIt != chUsers.end(); ++userIt) {
             if (userIt->getFd() != user.getFd()) {
                 send(userIt->getFd(), quitMsg.c_str(), quitMsg.length(), 0);
-                std::cout << " [ SERVER ] Message sent to client " << userIt->getFd() << "( " << userIt->getHostname() << " )" << quitMsg;
+                std::cout << "[ SERVER ] Message sent to client " << userIt->getFd() << "( " << userIt->getHostname() << " )" << quitMsg;
             }
         }
         /* if (channel->getOps().size() == 0) {

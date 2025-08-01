@@ -9,7 +9,7 @@ void Server::WhoCmd(User &user)
         // ERR_NEEDMOREPARAMS
         response = ":" + user.getHostname() + " 461 " + user.getNickname() + " WHO :Not enough parameters\r\n";
         send(user.getFd(), response.c_str(), response.size(), 0);
-        std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+        std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
         return;
     }
 
@@ -22,7 +22,7 @@ void Server::WhoCmd(User &user)
             //ERR_NOSUCHCHANNEL
             response = ":" + user.getHostname() + " 315 " + user.getNickname() + " " + target + " :End of /WHO list\r\n";
             send(user.getFd(), response.c_str(), response.size(), 0);
-            std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+            std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
             return;
         }
 
@@ -47,7 +47,7 @@ void Server::WhoCmd(User &user)
                       it->getNickname() + " H" + (isOp ? "@" : "") + " :0 " + it->getRealname() + "\r\n";
             
             send(user.getFd(), response.c_str(), response.size(), 0);
-            std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+            std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
         }
     }
     else
@@ -63,7 +63,7 @@ void Server::WhoCmd(User &user)
                           it->second.getNickname() + " H :0 " + it->second.getRealname() + "\r\n";
                 
                 send(user.getFd(), response.c_str(), response.size(), 0);
-                std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+                std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
                 break;
             }
         }
@@ -72,5 +72,5 @@ void Server::WhoCmd(User &user)
     // RPL_ENDOFWHO
     response = ":" + user.getHostname() + " 315 " + user.getNickname() + " " + target + " :End of /WHO list\r\n";
     send(user.getFd(), response.c_str(), response.size(), 0);
-    std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+    std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
 }

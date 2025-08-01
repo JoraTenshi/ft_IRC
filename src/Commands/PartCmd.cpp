@@ -16,7 +16,7 @@ void Server::PartCmd(User &user)
 		//ERR_NEEDMOREPARAMS
 		response = ":" + user.getHostname() + " 461 " + user.getNickname() + " PART :Not enough parameters\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
-		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
 		return;
 	}
 
@@ -25,7 +25,7 @@ void Server::PartCmd(User &user)
 		//ERR_NOSUCHCHANNEL
 		response = "!" + user.getHostname() + "403 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :No such channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
-		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
 		return;
 	}
 
@@ -45,7 +45,7 @@ void Server::PartCmd(User &user)
 		//ERR_NOTONCHANNEL
 		response = ":" + user.getHostname() + "442 " + user.getNickname() + " " + user.getMessage().getArgs()[0] + " :You're not on that channel\r\n";
 		send(user.getFd(), response.c_str(), response.size(), 0);
-		std::cout << " [ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
+		std::cout << "[ SERVER ] Message sent to client " << user.getFd() << "( " << user.getHostname() << " )" << response;
 		return;
 	}
 
@@ -60,7 +60,7 @@ void Server::PartCmd(User &user)
 	for (std::vector<User>::iterator it = _channels[user.getMessage().getArgs()[0]].getUsers().begin(); it != _channels[user.getMessage().getArgs()[0]].getUsers().end(); it++)
 	{
 		send(it->getFd(), response.c_str(), response.size(), 0);
-		std::cout << " [ SERVER ] Message sent to client " << it->getFd() << "( " << it->getHostname() << " )" << response;
+		std::cout << "[ SERVER ] Message sent to client " << it->getFd() << "( " << it->getHostname() << " )" << response;
 	}
 	_channels[user.getMessage().getArgs()[0]].rmOps(_channels[user.getMessage().getArgs()[0]].getUsers()[partedIndex]);
 	_channels[user.getMessage().getArgs()[0]].rmUser(_channels[user.getMessage().getArgs()[0]].getUsers()[partedIndex]);
