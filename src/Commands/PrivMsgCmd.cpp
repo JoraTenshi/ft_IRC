@@ -28,10 +28,7 @@ void Server::PrivMsgCmd(User &user)
 	}
 
 	response = ":" + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname() + " PRIVMSG " + user.getMessage().getArgs()[0] + " :" + user.getMessage().getMsg() + "\r\n";
-	if (!user.getMessage().getMsg().empty())
-		response = response + " :" + user.getMessage().getMsg() + "\r\n";
-	else
-		response = response + " :" + user.getMessage().getArgs()[1] + "\r\n";
+
 
 	bool found = false;
 	if (user.getMessage().getArgs()[0][0] == '#')

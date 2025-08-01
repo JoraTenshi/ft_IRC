@@ -20,7 +20,7 @@ void Server::JoinCmd(User &user)
 	}
 
 	//Server response if user inputs a channel without a #
-	if (user.getMessage().getArgs()[0][0] != '#')
+	if (user.getMessage().getArgs()[0][0] != '#' || !user.getMessage().getArgs()[0][1])
 	{
 		//ERR_NOSUCHCHANNEL
 		response = ":" + user.getHostname() + " 403 " + user.getNickname() + " JOIN :No such channel\r\n";
